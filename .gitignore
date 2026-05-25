@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+target/
+.idea/
+.vscode/
+*.log
+target/
+*/target/
+*.log
+.angular/
+*/.angular/
