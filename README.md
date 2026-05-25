@@ -176,14 +176,5 @@ Chaque microservice Spring Boot est indépendant et dispose de son fichier de co
 
 ---
 
-## 📈 Améliorations Futures Suggérées
-
-*   **WebSockets (STOMP/SSE) :** Remplacer le polling temporisé RxJS du frontend par du temps réel natif pour la confirmation des événements RabbitMQ.
-*   **API Gateway :** Ajouter une passerelle Spring Cloud Gateway pour unifier la sécurité (OAuth2/Keycloak) et centraliser le routage.
-*   **Rapports de Factures PDF :** Permettre le téléchargement de la facture PDF individuelle d'un client en utilisant JasperReports.
-*   **Visualisation BPMN :** Intégrer `bpmn-js` sur le front-end pour afficher graphiquement la progression du workflow Camunda.
-
----
-
 ## 📄 Licence
 Ce projet est sous licence MIT. N'hésitez pas à l'utiliser et à l'enrichir dans vos projets de formation ou d'entreprise !
