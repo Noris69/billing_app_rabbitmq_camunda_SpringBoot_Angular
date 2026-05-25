@@ -1,0 +1,9 @@
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\BillingCustomerApplication.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\config\SecurityConfig.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\controllers\CustomerController.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\dtos\CustomerDto.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\dtos\CustomerSearchCriteria.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\entities\Customer.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\repositories\CustomerRepository.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\services\CustomerService.java
+C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\main\java\ma\atos\billing\customer\billing_customer\services\CustomerServiceImp.java

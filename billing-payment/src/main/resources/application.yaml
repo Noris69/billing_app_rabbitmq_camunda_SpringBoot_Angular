@@ -1,0 +1,48 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: billing-payment
+
+  cloud:
+    config:
+      enabled: false
+
+  datasource:
+    url: jdbc:postgresql://149.56.107.189:5432/db_formation
+    username: root
+    password: eSFHR9u2mbBVLLDJtSG3
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/billing
+
+billing:
+  rabbitmq:
+    exchange: billing.exchange
+    payment-requested-queue: payment.requested.queue
+    payment-completed-queue: invoice.payment.completed.queue
+    payment-requested-routing-key: payment.requested
+    payment-completed-routing-key: payment.completed

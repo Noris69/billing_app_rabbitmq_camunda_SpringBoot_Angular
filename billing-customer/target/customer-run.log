@@ -1,0 +1,100 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------< ma.atos.billing.customer:billing-customer >--------------
+[INFO] Building billing-customer 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.14:run (default-cli) > test-compile @ billing-customer >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ billing-customer ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ billing-customer ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ billing-customer ---
+[INFO] skip non existing resourceDirectory C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ billing-customer ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.5.14:run (default-cli) < test-compile @ billing-customer <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.14:run (default-cli) @ billing-customer ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.14)
+
+2026-05-25T15:22:25.495+01:00  INFO 37536 --- [billing-customer] [           main] m.a.b.c.b.BillingCustomerApplication     : Starting BillingCustomerApplication using Java 17.0.12 with PID 37536 (C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer\target\classes started by a953702 in C:\Users\a953702\projet_formation\bank-transfer-management-mini-app\billing-customer)
+2026-05-25T15:22:25.499+01:00  INFO 37536 --- [billing-customer] [           main] m.a.b.c.b.BillingCustomerApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-05-25T15:22:26.150+01:00  INFO 37536 --- [billing-customer] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-25T15:22:26.204+01:00  INFO 37536 --- [billing-customer] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 45 ms. Found 1 JPA repository interface.
+2026-05-25T15:22:26.362+01:00  INFO 37536 --- [billing-customer] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=6e6f53b2-ac27-3971-b9ae-662444e1e523
+2026-05-25T15:22:26.726+01:00  INFO 37536 --- [billing-customer] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8083 (http)
+2026-05-25T15:22:26.749+01:00  INFO 37536 --- [billing-customer] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-25T15:22:26.750+01:00  INFO 37536 --- [billing-customer] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-05-25T15:22:26.801+01:00  INFO 37536 --- [billing-customer] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-25T15:22:26.803+01:00  INFO 37536 --- [billing-customer] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1256 ms
+2026-05-25T15:22:26.936+01:00  INFO 37536 --- [billing-customer] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-25T15:22:26.977+01:00  INFO 37536 --- [billing-customer] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-05-25T15:22:27.002+01:00  INFO 37536 --- [billing-customer] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-25T15:22:27.207+01:00  INFO 37536 --- [billing-customer] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-25T15:22:27.230+01:00  INFO 37536 --- [billing-customer] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-25T15:22:28.304+01:00  INFO 37536 --- [billing-customer] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e794f53
+2026-05-25T15:22:28.307+01:00  INFO 37536 --- [billing-customer] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-25T15:22:28.452+01:00  WARN 37536 --- [billing-customer] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-25T15:22:28.839+01:00  INFO 37536 --- [billing-customer] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-25T15:22:29.354+01:00  INFO 37536 --- [billing-customer] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-25T15:22:31.139+01:00  INFO 37536 --- [billing-customer] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-25T15:22:31.288+01:00  WARN 37536 --- [billing-customer] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-25T15:22:32.004+01:00  WARN 37536 --- [billing-customer] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-05-25T15:22:32.007+01:00  INFO 37536 --- [billing-customer] [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-25T15:22:32.009+01:00  INFO 37536 --- [billing-customer] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-25T15:22:33.129+01:00  INFO 37536 --- [billing-customer] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-05-25T15:22:33.139+01:00  INFO 37536 --- [billing-customer] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-05-25T15:22:33.151+01:00 ERROR 37536 --- [billing-customer] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8083 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8083 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.565 s
+[INFO] Finished at: 2026-05-25T15:22:33+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.14:run (default-cli) on project billing-customer: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

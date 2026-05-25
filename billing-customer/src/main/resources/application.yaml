@@ -1,0 +1,31 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: billing-customer
+
+  cloud:
+    config:
+      enabled: false
+
+  datasource:
+    url: jdbc:postgresql://149.56.107.189:5432/db_formation
+    username: root
+    password: eSFHR9u2mbBVLLDJtSG3
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/billing
