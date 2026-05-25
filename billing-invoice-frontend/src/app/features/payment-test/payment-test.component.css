@@ -1,0 +1,50 @@
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.inline-field {
+  display: flex;
+  gap: 8px;
+}
+
+.inline-field input {
+  min-width: 0;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.workflow-grid span {
+  display: block;
+  color: #8c8c8c;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.workflow-grid strong {
+  overflow-wrap: anywhere;
+}
+
+.loading-state {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #8c8c8c;
+}
+
+@media (max-width: 768px) {
+  .inline-field {
+    flex-direction: column;
+  }
+
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,23 @@
+<nz-layout class="app-layout">
+  <nz-header class="app-header">
+    <div class="brand-block">
+      <div class="brand-title">Billing Invoice</div>
+      <div class="brand-subtitle">Gestion des creanciers et points de vente</div>
+    </div>
+
+    <div class="nav-actions">
+      <a nz-button routerLink="/creanciers">Creanciers</a>
+      <a nz-button nzType="primary" routerLink="/points-de-vente">Points de vente</a>
+      <a nz-button routerLink="/factures">Factures</a>
+      <a nz-button routerLink="/test-paiement">Test paiement</a>
+      <span class="user-name">{{ username }}</span>
+      <button nz-button type="button" (click)="logout()">Deconnexion</button>
+    </div>
+  </nz-header>
+
+  <nz-content class="app-content">
+    <div class="page-shell">
+      <router-outlet></router-outlet>
+    </div>
+  </nz-content>
+</nz-layout>

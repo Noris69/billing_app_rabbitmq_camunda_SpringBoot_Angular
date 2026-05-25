@@ -1,0 +1,257 @@
+<h1 class="page-title">Test paiement</h1>
+<p class="page-subtitle">
+  Lance une facture et verifie la transaction creee par le microservice payment.
+</p>
+
+<nz-alert
+  *ngIf="successMessage"
+  class="section-gap"
+  nzType="success"
+  [nzMessage]="successMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card nzTitle="Facture de test" class="section-gap">
+  <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="startTest()">
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label nzRequired>Reference</nz-form-label>
+          <nz-form-control>
+            <div class="inline-field">
+              <input nz-input formControlName="reference" />
+              <button nz-button type="button" (click)="resetReference()">Generer</button>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Date facture</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="date" formControlName="dateInvoice" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Date echeance</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="date" formControlName="dateDue" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Mode</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="modeReglement">
+              <nz-option *ngFor="let mode of modeOptions" [nzLabel]="mode" [nzValue]="mode"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label>Succes</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="paymentSuccess">
+              <nz-option nzLabel="Oui" [nzValue]="true"></nz-option>
+              <nz-option nzLabel="Non" [nzValue]="false"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Montant HT</nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              class="full-width"
+              formControlName="montantHt"
+              [nzMin]="0"
+              [nzStep]="10"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>TVA 20%</nz-form-label>
+          <nz-form-control>
+            <nz-input-number class="full-width" formControlName="montantTva" [nzMin]="0"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>TTC</nz-form-label>
+          <nz-form-control>
+            <nz-input-number class="full-width" formControlName="montantTtc" [nzMin]="1"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Customer</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              formControlName="customerId"
+              nzShowSearch
+              nzServerSearch
+              nzPlaceHolder="Selectionner"
+              [nzLoading]="loadingCustomers"
+              (nzOnSearch)="searchCustomers($event)"
+            >
+              <nz-option
+                *ngFor="let customer of customers"
+                [nzLabel]="customerLabel(customer)"
+                [nzValue]="customer.id"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Creancier</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              formControlName="creancierId"
+              nzShowSearch
+              nzServerSearch
+              nzPlaceHolder="Selectionner"
+              [nzLoading]="loadingCreanciers"
+              (nzOnSearch)="searchCreanciers($event)"
+            >
+              <nz-option
+                *ngFor="let creancier of creanciers"
+                [nzLabel]="creancierLabel(creancier)"
+                [nzValue]="creancier.id"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label nzRequired>Point vente</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              formControlName="pointDeVenteId"
+              nzShowSearch
+              nzServerSearch
+              nzPlaceHolder="Selectionner"
+              [nzLoading]="loadingPointsDeVente"
+              (nzOnSearch)="searchPointsDeVente($event)"
+            >
+              <nz-option
+                *ngFor="let pointDeVente of pointsDeVente"
+                [nzLabel]="pointDeVenteLabel(pointDeVente)"
+                [nzValue]="pointDeVente.id"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-form-item>
+      <nz-form-label>Description</nz-form-label>
+      <nz-form-control>
+        <textarea nz-input rows="2" formControlName="description"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div class="toolbar">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="loading">
+        Lancer le test
+      </button>
+      <button nz-button type="button" (click)="refreshPayments()" [nzLoading]="refreshing">
+        Rafraichir paiements
+      </button>
+    </div>
+  </form>
+</nz-card>
+
+<nz-card *ngIf="workflowResponse" nzTitle="Workflow" class="section-gap">
+  <div class="workflow-grid">
+    <div>
+      <span>Process</span>
+      <strong>{{ workflowResponse.processInstanceId }}</strong>
+    </div>
+    <div>
+      <span>Facture</span>
+      <strong>#{{ workflowResponse.invoiceId }}</strong>
+    </div>
+    <div>
+      <span>Business key</span>
+      <strong>{{ workflowResponse.businessKey }}</strong>
+    </div>
+  </div>
+</nz-card>
+
+<nz-card nzTitle="Transactions payment">
+  <div class="loading-state" *ngIf="(loading || refreshing) && !payments.length">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement des paiements...</span>
+  </div>
+
+  <ng-container *ngIf="payments.length; else emptyState">
+    <nz-table [nzData]="payments" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Creancier</th>
+          <th>Point vente</th>
+          <th>Montant</th>
+          <th>Mode</th>
+          <th>Reference transaction</th>
+          <th>Status</th>
+          <th>Date creation</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let payment of payments">
+          <td>#{{ payment.id }}</td>
+          <td>{{ customerName(payment.customerId) }}</td>
+          <td>{{ creancierName(payment.creancierId) }}</td>
+          <td>{{ pointDeVenteName(payment.pointDeVenteId) }}</td>
+          <td>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }}</td>
+          <td>{{ payment.modeReglement || '-' }}</td>
+          <td><code>{{ payment.transactionReference || '-' }}</code></td>
+          <td>
+            <nz-tag [nzColor]="statusColor(payment.status)">{{ payment.status }}</nz-tag>
+          </td>
+          <td>{{ payment.createdDate ? (payment.createdDate | date:'dd/MM/yyyy') : '-' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <nz-empty *ngIf="!loading && !refreshing" nzNotFoundContent="Aucune transaction trouvee"></nz-empty>
+  </ng-template>
+</nz-card>

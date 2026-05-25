@@ -1,0 +1,43 @@
+@import 'ng-zorro-antd/ng-zorro-antd.min.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  background: #f5f7fa;
+  color: #1f1f1f;
+}
+
+body {
+  min-width: 320px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.muted {
+  color: #8c8c8c;
+}
+
+.page-title {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.page-subtitle {
+  margin: 0 0 24px;
+  color: #595959;
+  line-height: 1.5;
+}
+
+.section-gap {
+  margin-bottom: 16px;
+}

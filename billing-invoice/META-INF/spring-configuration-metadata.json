@@ -1,0 +1,624 @@
+{
+  "groups": [
+    {
+      "name": "camunda.bpm",
+      "type": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.admin-user",
+      "type": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getAdminUser()"
+    },
+    {
+      "name": "camunda.bpm.authorization",
+      "type": "org.camunda.bpm.spring.boot.starter.property.AuthorizationProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getAuthorization()"
+    },
+    {
+      "name": "camunda.bpm.database",
+      "type": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getDatabase()"
+    },
+    {
+      "name": "camunda.bpm.eventing",
+      "type": "org.camunda.bpm.spring.boot.starter.property.EventingProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getEventing()"
+    },
+    {
+      "name": "camunda.bpm.filter",
+      "type": "org.camunda.bpm.spring.boot.starter.property.FilterProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getFilter()"
+    },
+    {
+      "name": "camunda.bpm.generic-properties",
+      "type": "org.camunda.bpm.spring.boot.starter.property.GenericProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getGenericProperties()"
+    },
+    {
+      "name": "camunda.bpm.job-execution",
+      "type": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getJobExecution()"
+    },
+    {
+      "name": "camunda.bpm.metrics",
+      "type": "org.camunda.bpm.spring.boot.starter.property.MetricsProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getMetrics()"
+    },
+    {
+      "name": "camunda.bpm.rest-api",
+      "type": "org.camunda.bpm.spring.boot.starter.property.RestApiProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getRestApi()"
+    },
+    {
+      "name": "camunda.bpm.rest-api.fetch-and-lock",
+      "type": "org.camunda.bpm.spring.boot.starter.property.FetchAndLockProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.RestApiProperty",
+      "sourceMethod": "getFetchAndLock()"
+    },
+    {
+      "name": "camunda.bpm.webapp",
+      "type": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "sourceMethod": "getWebapp()"
+    },
+    {
+      "name": "camunda.bpm.webapp.auth",
+      "type": "org.camunda.bpm.spring.boot.starter.property.AuthenticationProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "sourceMethod": "getAuth()"
+    },
+    {
+      "name": "camunda.bpm.webapp.auth.cache",
+      "type": "org.camunda.bpm.spring.boot.starter.property.AuthenticationProperties$CacheProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthenticationProperties",
+      "sourceMethod": "getCache()"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf",
+      "type": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "sourceMethod": "getCsrf()"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security",
+      "type": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "sourceMethod": "getHeaderSecurity()"
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie",
+      "type": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "sourceMethod": "getSessionCookie()"
+    },
+    {
+      "name": "management",
+      "type": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties"
+    },
+    {
+      "name": "management.health",
+      "type": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties$Health",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties",
+      "sourceMethod": "getHealth()"
+    },
+    {
+      "name": "management.health.camunda",
+      "type": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties$Health$Camunda",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties$Health",
+      "sourceMethod": "getCamunda()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "camunda.bpm.admin-user.email",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty"
+    },
+    {
+      "name": "camunda.bpm.admin-user.first-name",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty"
+    },
+    {
+      "name": "camunda.bpm.admin-user.id",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty"
+    },
+    {
+      "name": "camunda.bpm.admin-user.last-name",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty"
+    },
+    {
+      "name": "camunda.bpm.admin-user.password",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AdminUserProperty"
+    },
+    {
+      "name": "camunda.bpm.authorization.authorization-check-revokes",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthorizationProperty"
+    },
+    {
+      "name": "camunda.bpm.authorization.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables authorization.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthorizationProperty"
+    },
+    {
+      "name": "camunda.bpm.authorization.enabled-for-custom-code",
+      "type": "java.lang.Boolean",
+      "description": "Enables authorization for custom code.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthorizationProperty"
+    },
+    {
+      "name": "camunda.bpm.authorization.tenant-check-enabled",
+      "type": "java.lang.Boolean",
+      "description": "If the value of this flag is set <code>true<\/code> then the process engine performs tenant checks to ensure that an authenticated user can only access data that belongs to one of his tenants.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthorizationProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.auto-deployment-enabled",
+      "type": "java.lang.Boolean",
+      "description": "enables auto deployment of processes",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.database.jdbc-batch-processing",
+      "type": "java.lang.Boolean",
+      "description": "enables batch processing mode for db operations",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.database.schema-name",
+      "type": "java.lang.String",
+      "description": "the database schema to use",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty"
+    },
+    {
+      "name": "camunda.bpm.database.schema-update",
+      "type": "java.lang.String",
+      "description": "enables automatic schema update",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty"
+    },
+    {
+      "name": "camunda.bpm.database.table-prefix",
+      "type": "java.lang.String",
+      "description": "the database table prefix to use",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty"
+    },
+    {
+      "name": "camunda.bpm.database.type",
+      "type": "java.lang.String",
+      "description": "the database type",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.DatabaseProperty"
+    },
+    {
+      "name": "camunda.bpm.default-number-of-retries",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.default-serialization-format",
+      "type": "java.lang.String",
+      "description": "default serialization format to use",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.deployment-resource-pattern",
+      "type": "java.lang.String[]",
+      "description": "resource pattern for locating process sources",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.enabled",
+      "type": "java.lang.Boolean",
+      "description": "deactivate camunda auto configuration",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.eventing.execution",
+      "type": "java.lang.Boolean",
+      "description": "Controls events of execution listener.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.EventingProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.eventing.history",
+      "type": "java.lang.Boolean",
+      "description": "Controls events of history handler.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.EventingProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.eventing.skippable",
+      "type": "java.lang.Boolean",
+      "description": "Controls if the event listeners for tasks and executions are can be skipped (controlled by `skipCustomListeners` property in Cockpit and in various APIs). Defaults to true.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.EventingProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.eventing.task",
+      "type": "java.lang.Boolean",
+      "description": "Controls events of task listener.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.EventingProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.filter.create",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.FilterProperty"
+    },
+    {
+      "name": "camunda.bpm.generate-unique-process-application-name",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.generate-unique-process-engine-name",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.generic-properties.ignore-unknown-fields",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.GenericProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.generic-properties.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.GenericProperties"
+    },
+    {
+      "name": "camunda.bpm.history-level",
+      "type": "java.lang.String",
+      "description": "the history level to use",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.history-level-default",
+      "type": "java.lang.String",
+      "description": "the default history level to use when 'historyLevel' is 'auto'",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.id-generator",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.job-execution.backoff-decrease-threshold",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.backoff-time-in-millis",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.core-pool-size",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "defaultValue": 3
+    },
+    {
+      "name": "camunda.bpm.job-execution.deployment-aware",
+      "type": "java.lang.Boolean",
+      "description": "if job execution is deployment aware",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.job-execution.enabled",
+      "type": "java.lang.Boolean",
+      "description": "enables job execution",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.job-execution.keep-alive-seconds",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.lock-time-in-millis",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.max-backoff",
+      "type": "java.lang.Long",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.max-jobs-per-acquisition",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.max-pool-size",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "defaultValue": 10
+    },
+    {
+      "name": "camunda.bpm.job-execution.max-wait",
+      "type": "java.lang.Long",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.queue-capacity",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty",
+      "defaultValue": 3
+    },
+    {
+      "name": "camunda.bpm.job-execution.wait-increase-factor",
+      "type": "java.lang.Float",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-execution.wait-time-in-millis",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.JobExecutionProperty"
+    },
+    {
+      "name": "camunda.bpm.job-executor-acquire-by-priority",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.license-file",
+      "type": "java.net.URL",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.metrics.db-reporter-activate",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.MetricsProperty"
+    },
+    {
+      "name": "camunda.bpm.metrics.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.MetricsProperty"
+    },
+    {
+      "name": "camunda.bpm.process-engine-name",
+      "type": "java.lang.String",
+      "description": "name of the process engine",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties"
+    },
+    {
+      "name": "camunda.bpm.rest-api.fetch-and-lock.init-params",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.FetchAndLockProperties"
+    },
+    {
+      "name": "camunda.bpm.rest-api.fetch-and-lock.queue-capacity",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.FetchAndLockProperties",
+      "defaultValue": 200
+    },
+    {
+      "name": "camunda.bpm.rest-api.fetch-and-lock.unique-worker-request",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.FetchAndLockProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.application-path",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "defaultValue": "\/camunda"
+    },
+    {
+      "name": "camunda.bpm.webapp.auth.cache.time-to-live",
+      "type": "java.lang.Long",
+      "description": "Authentication time to live.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthenticationProperties$CacheProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.auth.cache.ttl-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables authentication time to live.",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.AuthenticationProperties$CacheProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.cookie-name",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.deny-status",
+      "type": "java.lang.Integer",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.enable-same-site-cookie",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.enable-secure-cookie",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.entry-points",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.init-params",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.random-class",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.same-site-cookie-option",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.same-site-cookie-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.csrf.target-origin",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.CsrfProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.content-security-policy-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.content-security-policy-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.content-type-options-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.content-type-options-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.hsts-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.hsts-include-subdomains-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.hsts-max-age",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.hsts-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.init-params",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.xss-protection-disabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.xss-protection-option",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.header-security.xss-protection-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.HeaderSecurityProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.index-redirect-enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.security-config-file",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "defaultValue": "\/securityFilterRules.json"
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.cookie-name",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.enable-same-site-cookie",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.enable-secure-cookie",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.init-params",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.same-site-cookie-option",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.session-cookie.same-site-cookie-value",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.SessionCookieProperties"
+    },
+    {
+      "name": "camunda.bpm.webapp.webjar-classpath",
+      "type": "java.lang.String",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.WebappProperty",
+      "defaultValue": "\/META-INF\/resources\/webjars\/camunda"
+    },
+    {
+      "name": "management.health.camunda.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "org.camunda.bpm.spring.boot.starter.property.ManagementProperties$Health$Camunda",
+      "defaultValue": true
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

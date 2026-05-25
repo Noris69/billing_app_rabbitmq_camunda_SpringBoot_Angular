@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="points_de_vente"
+              pageWidth="842"
+              pageHeight="595"
+              orientation="Landscape"
+              columnWidth="802"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="b1b63d91-5190-4f2f-a9b7-5ea27b5f75b6">
+
+    <style name="Title" fontName="SansSerif" fontSize="18" isBold="true"/>
+    <style name="Header" mode="Opaque" backcolor="#E8EEF7" fontName="SansSerif" fontSize="9" isBold="true">
+        <box>
+            <pen lineWidth="0.5" lineColor="#C6CEDA"/>
+        </box>
+    </style>
+    <style name="Cell" fontName="SansSerif" fontSize="8">
+        <box>
+            <pen lineWidth="0.25" lineColor="#D7DDE6"/>
+        </box>
+        <paragraph leftIndent="3" rightIndent="3"/>
+    </style>
+
+    <parameter name="REPORT_TITLE" class="java.lang.String"/>
+
+    <field name="id" class="java.lang.Long"/>
+    <field name="type" class="java.lang.Object"/>
+    <field name="nom" class="java.lang.String"/>
+    <field name="adresse" class="java.lang.String"/>
+    <field name="telephone" class="java.lang.String"/>
+    <field name="codeAgence" class="java.lang.String"/>
+    <field name="codeDistributeur" class="java.lang.String"/>
+    <field name="responsable" class="java.lang.String"/>
+    <field name="nomCommercial" class="java.lang.String"/>
+    <field name="region" class="java.lang.String"/>
+    <field name="zoneDistribution" class="java.lang.String"/>
+    <field name="commission" class="java.lang.Double"/>
+
+    <title>
+        <band height="55">
+            <textField>
+                <reportElement style="Title" x="0" y="0" width="802" height="28" uuid="a3aa9a2b-4db0-4357-b26a-057cfd79e0f8"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$P{REPORT_TITLE}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="32" width="802" height="16" uuid="a0f5851a-d4eb-43bb-89aa-ccad84cda36d"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[Export des agences et distributeurs]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="24">
+            <staticText><reportElement style="Header" x="0" y="0" width="40" height="24" uuid="ed8924e7-69d3-49b4-9236-2fa5400dbb4d"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[ID]]></text></staticText>
+            <staticText><reportElement style="Header" x="40" y="0" width="80" height="24" uuid="946ad22d-cd0d-498f-90ee-860eea7a67d4"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Type]]></text></staticText>
+            <staticText><reportElement style="Header" x="120" y="0" width="110" height="24" uuid="7af3c840-8d3f-44cf-8f5f-e6d6ff71c0b3"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Nom]]></text></staticText>
+            <staticText><reportElement style="Header" x="230" y="0" width="130" height="24" uuid="d6891b21-f8e7-4735-966a-60829279a41b"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Adresse]]></text></staticText>
+            <staticText><reportElement style="Header" x="360" y="0" width="80" height="24" uuid="16f686b7-73fe-49bd-9f13-29677313ff13"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Telephone]]></text></staticText>
+            <staticText><reportElement style="Header" x="440" y="0" width="80" height="24" uuid="53da876c-b9bd-49ce-a5ee-118b7cae5235"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Code]]></text></staticText>
+            <staticText><reportElement style="Header" x="520" y="0" width="120" height="24" uuid="7edccbc8-2f9d-45aa-a1d4-37e9228d1d4c"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Responsable / Commercial]]></text></staticText>
+            <staticText><reportElement style="Header" x="640" y="0" width="100" height="24" uuid="44d92081-c1c3-4cdd-a68e-f50a871c29c6"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Region / Zone]]></text></staticText>
+            <staticText><reportElement style="Header" x="740" y="0" width="62" height="24" uuid="b866653e-3d88-4e4a-b5f6-42b464825f6d"/><textElement textAlignment="Center" verticalAlignment="Middle"/><text><![CDATA[Commission]]></text></staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="22">
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="0" y="0" width="40" height="22" uuid="c2b0291b-b9a7-45eb-bf40-611e08f5817f"/><textElement textAlignment="Center" verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{id}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="40" y="0" width="80" height="22" uuid="ba560733-e790-4e5a-bb6b-ad27e869ed51"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{type} == null ? "" : String.valueOf($F{type})]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="120" y="0" width="110" height="22" uuid="9efaad09-b578-4f82-9977-9c7b9514af7e"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{nom}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="230" y="0" width="130" height="22" uuid="a74418c2-9083-491e-a71a-7346b98dd8c6"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{adresse}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="360" y="0" width="80" height="22" uuid="94a5eb23-e512-4519-8150-7e01e301596a"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{telephone}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="440" y="0" width="80" height="22" uuid="4d068114-f217-4441-b408-83210fbe2f0f"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{codeAgence} != null ? $F{codeAgence} : $F{codeDistributeur}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="520" y="0" width="120" height="22" uuid="deec1bd2-3809-48aa-84dd-41f7352a7169"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{responsable} != null ? $F{responsable} : $F{nomCommercial}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true"><reportElement style="Cell" x="640" y="0" width="100" height="22" uuid="c67321fa-900f-411e-b2e5-a58809277a06"/><textElement verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{region} != null ? $F{region} : $F{zoneDistribution}]]></textFieldExpression></textField>
+            <textField isBlankWhenNull="true" pattern="#,##0.00"><reportElement style="Cell" x="740" y="0" width="62" height="22" uuid="6910e138-15cb-47f3-9451-7a3fdf08f692"/><textElement textAlignment="Right" verticalAlignment="Middle"/><textFieldExpression><![CDATA[$F{commission}]]></textFieldExpression></textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="20">
+            <textField>
+                <reportElement x="690" y="0" width="112" height="18" uuid="c92cd8a7-45f3-4f3c-b8ea-60c8decc5c3e"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>

@@ -1,0 +1,142 @@
+<h1 class="page-title">Points de vente</h1>
+<p class="page-subtitle">
+  Recherche les agences et distributeurs, puis gere leurs fiches.
+</p>
+
+<div class="toolbar section-gap">
+  <a nz-button nzType="primary" routerLink="/points-de-vente/new">Nouveau point de vente</a>
+  <button nz-button type="button" (click)="search()">Rafraichir</button>
+  <button nz-button type="button" [nzLoading]="exportingPdf" (click)="exportPdf()">Export PDF</button>
+</div>
+
+<nz-alert
+  *ngIf="successMessage"
+  class="section-gap"
+  nzType="success"
+  [nzMessage]="successMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card nzTitle="Recherche" class="section-gap">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="6">
+        <nz-form-item>
+          <nz-form-label>Nom</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="nom" placeholder="Centre, Nord..." />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="6">
+        <nz-form-item>
+          <nz-form-label>Type</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="type_point_de_vente" nzAllowClear nzPlaceHolder="Tous">
+              <nz-option
+                *ngFor="let type of pointDeVenteTypes"
+                [nzLabel]="type.label"
+                [nzValue]="type.value"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="6">
+        <nz-form-item>
+          <nz-form-label>Adresse</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="adresse" placeholder="Ville ou quartier" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="6">
+        <nz-form-item>
+          <nz-form-label>Telephone</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="telephone" placeholder="0522..." />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="toolbar">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="loading">Rechercher</button>
+      <button nz-button type="button" (click)="resetFilters()">Reinitialiser</button>
+    </div>
+  </form>
+</nz-card>
+
+<nz-card [nzTitle]="'Resultats (' + totalElements + ')'">
+  <div class="loading-state" *ngIf="loading && !pointsDeVente.length">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement des points de vente...</span>
+  </div>
+
+  <ng-container *ngIf="pointsDeVente.length; else emptyState">
+    <nz-table [nzData]="pointsDeVente" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Nom</th>
+          <th>Code</th>
+          <th>Adresse</th>
+          <th>Telephone</th>
+          <th>Responsable / Commercial</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let pointDeVente of pointsDeVente">
+          <td>#{{ pointDeVente.id }}</td>
+          <td>
+            <nz-tag [nzColor]="pointDeVente.type === 'AGENCE' ? 'blue' : 'green'">
+              {{ pointDeVente.type }}
+            </nz-tag>
+          </td>
+          <td>{{ pointDeVente.nom }}</td>
+          <td>{{ getSecondaryCode(pointDeVente) }}</td>
+          <td>{{ pointDeVente.adresse }}</td>
+          <td>{{ pointDeVente.telephone }}</td>
+          <td>{{ getResponsibleLabel(pointDeVente) }}</td>
+          <td>
+            <div class="action-group">
+              <a nz-button nzSize="small" [routerLink]="['/points-de-vente', pointDeVente.id, 'edit']">
+                Modifier
+              </a>
+              <button
+                nz-button
+                nzDanger
+                nzSize="small"
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Supprimer ce point de vente ?"
+                [nzLoading]="deletingId === pointDeVente.id"
+                (nzOnConfirm)="deletePointDeVente(pointDeVente)"
+              >
+                Supprimer
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucun point de vente trouve"></nz-empty>
+  </ng-template>
+</nz-card>

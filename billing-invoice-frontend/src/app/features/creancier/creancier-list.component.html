@@ -1,0 +1,150 @@
+<h1 class="page-title">Creanciers</h1>
+<p class="page-subtitle">
+  Recherche les creanciers et gere leurs informations bancaires et de contact.
+</p>
+
+<div class="toolbar section-gap">
+  <a nz-button nzType="primary" routerLink="/creanciers/new">Nouveau creancier</a>
+  <button nz-button type="button" (click)="search()">Rafraichir</button>
+</div>
+
+<nz-alert
+  *ngIf="successMessage"
+  class="section-gap"
+  nzType="success"
+  [nzMessage]="successMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card nzTitle="Recherche" class="section-gap">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="5">
+        <nz-form-item>
+          <nz-form-label>Nom</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="nom" placeholder="Nom du creancier" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="5">
+        <nz-form-item>
+          <nz-form-label>Type</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="typeCreancier" nzAllowClear nzPlaceHolder="Tous">
+              <nz-option
+                *ngFor="let type of typeOptions"
+                [nzLabel]="type.label"
+                [nzValue]="type.value"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="5">
+        <nz-form-item>
+          <nz-form-label>ICE</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="ice" placeholder="ICE" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="5">
+        <nz-form-item>
+          <nz-form-label>Banque</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="banque" placeholder="Banque" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="4">
+        <nz-form-item>
+          <nz-form-label>Telephone</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="telephone" placeholder="0522..." />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="toolbar">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="loading">Rechercher</button>
+      <button nz-button type="button" (click)="resetFilters()">Reinitialiser</button>
+    </div>
+  </form>
+</nz-card>
+
+<nz-card [nzTitle]="'Resultats (' + totalElements + ')'">
+  <div class="loading-state" *ngIf="loading && !creanciers.length">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement des creanciers...</span>
+  </div>
+
+  <ng-container *ngIf="creanciers.length; else emptyState">
+    <nz-table [nzData]="creanciers" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Type</th>
+          <th>ICE</th>
+          <th>Banque</th>
+          <th>RIB</th>
+          <th>Email</th>
+          <th>Telephone</th>
+          <th>Date creation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let data of creanciers">
+          <td>#{{ data.id }}</td>
+          <td><strong>{{ data.nom }}</strong></td>
+          <td><nz-tag nzColor="blue">{{ data.typeCreancier }}</nz-tag></td>
+          <td>{{ data.ice }}</td>
+          <td>{{ data.banque }}</td>
+          <td><code>{{ data.rib }}</code></td>
+          <td>{{ data.email }}</td>
+          <td>{{ data.telephone }}</td>
+          <td>{{ data.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <div class="action-group">
+              <a nz-button nzSize="small" [routerLink]="['/creanciers', data.id, 'edit']">
+                Modifier
+              </a>
+              <button
+                nz-button
+                nzDanger
+                nzSize="small"
+                type="button"
+                nz-popconfirm
+                nzPopconfirmTitle="Supprimer ce creancier ?"
+                [nzLoading]="deletingId === data.id"
+                (nzOnConfirm)="deleteCreancier(data)"
+              >
+                Supprimer
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucun creancier trouve"></nz-empty>
+  </ng-template>
+</nz-card>

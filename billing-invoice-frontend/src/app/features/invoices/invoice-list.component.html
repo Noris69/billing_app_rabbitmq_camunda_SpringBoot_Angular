@@ -1,0 +1,93 @@
+<h1 class="page-title">Factures</h1>
+<p class="page-subtitle">
+  Consulte les factures creees par le workflow.
+</p>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card nzTitle="Recherche" class="section-gap">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="10">
+        <nz-form-item>
+          <nz-form-label>Reference</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="reference" placeholder="INV-RMQ..." />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="6">
+        <nz-form-item>
+          <nz-form-label>Status</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="status" nzAllowClear nzPlaceHolder="Tous">
+              <nz-option *ngFor="let status of statusOptions" [nzLabel]="status" [nzValue]="status"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="toolbar">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="loading">Rechercher</button>
+      <button nz-button type="button" (click)="resetFilters()">Reinitialiser</button>
+      <button nz-button type="button" (click)="search()">Rafraichir</button>
+    </div>
+  </form>
+</nz-card>
+
+<nz-card [nzTitle]="'Factures (' + totalElements + ')'">
+  <div class="loading-state" *ngIf="loading && !invoices.length">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement des factures...</span>
+  </div>
+
+  <ng-container *ngIf="invoices.length; else emptyState">
+    <nz-table [nzData]="invoices" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Reference</th>
+          <th>Status</th>
+          <th>Client</th>
+          <th>Creancier</th>
+          <th>Point vente</th>
+          <th>HT</th>
+          <th>TVA</th>
+          <th>TTC</th>
+          <th>Mode</th>
+          <th>Date creation</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let invoice of invoices">
+          <td>#{{ invoice.id }}</td>
+          <td><strong>{{ invoice.reference }}</strong></td>
+          <td>
+            <nz-tag [nzColor]="statusColor(invoice.status)">{{ invoice.status }}</nz-tag>
+          </td>
+          <td>{{ invoice.customerId }}</td>
+          <td>{{ invoice.creancierId }}</td>
+          <td>{{ invoice.pointDeVenteId }}</td>
+          <td>{{ invoice.montantHt | number:'1.2-2' }}</td>
+          <td>{{ invoice.montantTva | number:'1.2-2' }}</td>
+          <td>{{ invoice.montantTtc | number:'1.2-2' }}</td>
+          <td>{{ invoice.modeReglement }}</td>
+          <td>{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucune facture trouvee"></nz-empty>
+  </ng-template>
+</nz-card>

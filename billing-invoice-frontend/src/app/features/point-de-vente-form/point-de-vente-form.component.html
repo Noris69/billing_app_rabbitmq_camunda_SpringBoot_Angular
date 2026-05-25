@@ -1,0 +1,158 @@
+<h1 class="page-title">{{ isEditMode ? 'Modifier un point de vente' : 'Nouveau point de vente' }}</h1>
+<p class="page-subtitle">
+  Renseigne les informations communes, puis les champs propres a l'agence ou au distributeur.
+</p>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card [nzTitle]="isEditMode ? 'Fiche point de vente' : 'Creation point de vente'">
+  <div class="loading-state" *ngIf="loading">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement du point de vente...</span>
+  </div>
+
+  <form *ngIf="!loading" nz-form nzLayout="vertical" [formGroup]="pointDeVenteForm" (ngSubmit)="submit()">
+    <nz-form-item>
+      <nz-form-label nzRequired>Type</nz-form-label>
+      <nz-form-control>
+        <nz-radio-group formControlName="type">
+          <label
+            nz-radio-button
+            *ngFor="let type of pointDeVenteTypes"
+            [nzValue]="type.value"
+          >
+            {{ type.label }}
+          </label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label nzRequired>Nom</nz-form-label>
+          <nz-form-control nzErrorTip="Le nom est obligatoire">
+            <input nz-input formControlName="nom" placeholder="Agence Centre" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label nzRequired>Adresse</nz-form-label>
+          <nz-form-control nzErrorTip="L'adresse est obligatoire">
+            <input nz-input formControlName="adresse" placeholder="Casablanca Maarif" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label nzRequired>Telephone</nz-form-label>
+          <nz-form-control nzErrorTip="Le telephone est obligatoire">
+            <input nz-input formControlName="telephone" placeholder="0522000000" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <ng-container *ngIf="selectedType === 'AGENCE'; else distributeurFields">
+      <nz-row [nzGutter]="16">
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Code agence</nz-form-label>
+            <nz-form-control nzErrorTip="Le code agence est obligatoire">
+              <input nz-input formControlName="codeAgence" placeholder="AG001" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Responsable</nz-form-label>
+            <nz-form-control nzErrorTip="Le responsable est obligatoire">
+              <input nz-input formControlName="responsable" placeholder="Ahmed Alami" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Region</nz-form-label>
+            <nz-form-control nzErrorTip="La region est obligatoire">
+              <input nz-input formControlName="region" placeholder="Casablanca-Settat" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Type agence</nz-form-label>
+            <nz-form-control nzErrorTip="Le type agence est obligatoire">
+              <input nz-input formControlName="typeAgence" placeholder="PRINCIPALE" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+    </ng-container>
+
+    <ng-template #distributeurFields>
+      <nz-row [nzGutter]="16">
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Code distributeur</nz-form-label>
+            <nz-form-control nzErrorTip="Le code distributeur est obligatoire">
+              <input nz-input formControlName="codeDistributeur" placeholder="DIST001" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Zone</nz-form-label>
+            <nz-form-control nzErrorTip="La zone est obligatoire">
+              <input nz-input formControlName="zoneDistribution" placeholder="Nord" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Nom commercial</nz-form-label>
+            <nz-form-control nzErrorTip="Le nom commercial est obligatoire">
+              <input nz-input formControlName="nomCommercial" placeholder="Nord Distribution" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+
+        <nz-col [nzXs]="24" [nzMd]="6">
+          <nz-form-item>
+            <nz-form-label nzRequired>Commission</nz-form-label>
+            <nz-form-control nzErrorTip="La commission doit etre positive ou egale a 0">
+              <nz-input-number
+                class="full-width"
+                formControlName="commission"
+                [nzMin]="0"
+                [nzStep]="0.5"
+                [nzPrecision]="2"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </nz-col>
+      </nz-row>
+    </ng-template>
+
+    <div class="form-actions">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+        {{ isEditMode ? 'Enregistrer' : 'Creer' }}
+      </button>
+      <a nz-button routerLink="/points-de-vente">Annuler</a>
+    </div>
+  </form>
+</nz-card>

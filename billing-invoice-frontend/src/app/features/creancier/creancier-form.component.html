@@ -1,0 +1,123 @@
+<h1 class="page-title">{{ isEditMode ? 'Modifier un creancier' : 'Nouveau creancier' }}</h1>
+<p class="page-subtitle">
+  Renseigne l'identite, les coordonnees et les informations bancaires du creancier.
+</p>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<nz-card [nzTitle]="isEditMode ? 'Fiche creancier' : 'Creation creancier'">
+  <div class="loading-state" *ngIf="loading">
+    <nz-spin nzSimple></nz-spin>
+    <span>Chargement du creancier...</span>
+  </div>
+
+  <form *ngIf="!loading" nz-form nzLayout="vertical" [formGroup]="creancierForm" (ngSubmit)="submit()">
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Nom</nz-form-label>
+          <nz-form-control nzErrorTip="Le nom est obligatoire">
+            <input nz-input formControlName="nom" placeholder="Nom du creancier" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Type</nz-form-label>
+          <nz-form-control nzErrorTip="Le type est obligatoire">
+            <nz-select formControlName="typeCreancier" nzPlaceHolder="Type">
+              <nz-option
+                *ngFor="let type of typeOptions"
+                [nzLabel]="type.label"
+                [nzValue]="type.value"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label>ICE</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="ice" placeholder="ICE" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label>RC</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="rc" placeholder="RC" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label>Banque</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="banque" placeholder="Banque" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label>RIB</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="rib" placeholder="RIB" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label>Email</nz-form-label>
+          <nz-form-control nzErrorTip="Email invalide">
+            <input nz-input formControlName="email" placeholder="contact@example.com" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <nz-row [nzGutter]="16">
+      <nz-col [nzXs]="24" [nzMd]="8">
+        <nz-form-item>
+          <nz-form-label>Telephone</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="telephone" placeholder="0522000000" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+
+      <nz-col [nzXs]="24" [nzMd]="16">
+        <nz-form-item>
+          <nz-form-label>Adresse</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="adresse" placeholder="Adresse" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-col>
+    </nz-row>
+
+    <div class="form-actions">
+      <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+        {{ isEditMode ? 'Enregistrer' : 'Creer' }}
+      </button>
+      <a nz-button routerLink="/creanciers">Annuler</a>
+    </div>
+  </form>
+</nz-card>
