@@ -1,6 +1,6 @@
 # 🏦 Bank Transfer & Invoice Payment Management System
 
-Une plateforme moderne d'entreprise pour la **gestion de facturation, d'encaissement et de paiement de factures**. Ce projet est construit sur une architecture microservices hautement découplée et résiliente, s'appuyant sur des technologies de premier plan telles que **Spring Boot**, **Camunda BPM**, **RabbitMQ**, **Apache Camel**, **JasperReports** et un frontend dynamique en **Angular**.
+Une plateforme moderne d'entreprise pour la **gestion de facturation, d'encaissement et de paiement de factures**. Ce projet est construit sur une architecture microservices hautement découplée et résiliente, s'appuyant sur des technologies de premier plan telles que **Spring Boot**, **Camunda BPM**, **RabbitMQ**, **Apache Camel**, **Vault**, **JasperReports** et un frontend dynamique en **Angular**.
 
 ---
 
