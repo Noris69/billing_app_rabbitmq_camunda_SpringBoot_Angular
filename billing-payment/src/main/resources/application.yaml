@@ -4,15 +4,24 @@ server:
 spring:
   application:
     name: billing-payment
+  config:
+    import: optional:vault://
 
   cloud:
     config:
       enabled: false
+    vault:
+      uri: ${VAULT_URI:http://localhost:8200}
+      token: ${VAULT_TOKEN:root}
+      kv:
+        enabled: true
+        backend: secret
+        application-name: billing-payment
 
   datasource:
-    url: jdbc:postgresql://149.56.107.189:5432/db_formation
-    username: root
-    password: eSFHR9u2mbBVLLDJtSG3
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   flyway:
@@ -28,16 +37,16 @@ spring:
         format_sql: true
 
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/billing
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
 
 billing:
   rabbitmq:

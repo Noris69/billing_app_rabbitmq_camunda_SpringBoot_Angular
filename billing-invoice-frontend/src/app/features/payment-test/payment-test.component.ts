@@ -23,6 +23,7 @@ import { CustomerService } from 'src/app/core/services/customer.service';
 import { PaymentTestService } from 'src/app/core/services/payment-test.service';
 import { PointDeVenteService } from 'src/app/core/services/point-de-vente.service';
 import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-payment-test',

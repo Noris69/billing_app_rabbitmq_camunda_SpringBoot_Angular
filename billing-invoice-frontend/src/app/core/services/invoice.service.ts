@@ -16,6 +16,12 @@ export class InvoiceService {
     });
   }
 
+  exportInvoicePdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/export/pdf`, {
+      responseType: 'blob'
+    });
+  }
+
   private toHttpParams(params: InvoiceSearchParams): HttpParams {
     return Object.entries(params).reduce((httpParams, [key, value]) => {
       if (value === undefined || value === null || value === '') {

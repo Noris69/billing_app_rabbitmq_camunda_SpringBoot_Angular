@@ -50,6 +50,7 @@ L'application est découpée en **3 microservices indépendants** et **1 client 
 *   **Intégration de Flux :** Apache Camel 4 pour l'export automatisé de fichiers JSON.
 *   **Reporting :** JasperReports 6 pour l'export de rapports PDF professionnels.
 *   **Base de Données :** PostgreSQL (Production/Dev), H2 (Tests/Dev rapide) & Flyway pour le versioning de base de données.
+*   **Gestion des Secrets :** HashiCorp Vault pour centraliser les secrets applicatifs (PostgreSQL, RabbitMQ, Keycloak).
 *   **Cache :** Spring Cache avec gestion automatisée du cycle de vie des données.
 
 ---
@@ -118,17 +119,40 @@ sequenceDiagram
 
 ---
 
-### Étape 1 : Lancer l'infrastructure (RabbitMQ & Base de données)
+### Étape 1 : Lancer l'infrastructure (RabbitMQ, Vault & Base de données)
 Si vous disposez de Docker, vous pouvez exécuter un conteneur RabbitMQ en arrière-plan :
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
 *L'interface d'administration de RabbitMQ sera disponible sur http://localhost:15672 (identifiants par défaut : `guest` / `guest`).*
 
+L'application utilise aussi HashiCorp Vault pour charger les secrets au démarrage des microservices :
+```bash
+docker compose up -d vault
+```
+
+Vault local est disponible sur http://localhost:8200 avec le token de développement `root`.
+
+Avant de démarrer les microservices, chargez les secrets dans Vault :
+```powershell
+$env:DB_URL="jdbc:postgresql://host:5432/db"
+$env:DB_USERNAME="root"
+$env:DB_PASSWORD="mot-de-passe"
+$env:KEYCLOAK_ISSUER_URI="http://localhost:8081/realms/billing"
+$env:RABBITMQ_HOST="localhost"
+$env:RABBITMQ_PORT="5672"
+$env:RABBITMQ_USERNAME="guest"
+$env:RABBITMQ_PASSWORD="guest"
+
+.\scripts\vault-put-secrets.ps1
+```
+
+Les secrets sont stockés dans `secret/application` et sont lus par Spring Cloud Vault via `spring.config.import: optional:vault://`.
+
 ---
 
 ### Étape 2 : Configurer et démarrer les Microservices
-Chaque microservice Spring Boot est indépendant et dispose de son fichier de configuration `application.yaml` sous `src/main/resources`.
+Chaque microservice Spring Boot est indépendant et dispose de son fichier de configuration `application.yaml` sous `src/main/resources`. Les valeurs sensibles ne sont plus stockées en clair dans ces fichiers : elles sont résolues depuis Vault avec les clés `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `KEYCLOAK_ISSUER_URI`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME` et `RABBITMQ_PASSWORD`.
 
 1.  **Démarrer le service Client (`billing-customer`) :**
     ```bash
