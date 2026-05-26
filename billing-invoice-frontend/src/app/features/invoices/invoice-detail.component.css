@@ -47,6 +47,13 @@ dd {
   overflow-wrap: anywhere;
 }
 
+dd small {
+  color: #64748b;
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
 .amount-grid dd {
   font-size: 18px;
   font-weight: 700;

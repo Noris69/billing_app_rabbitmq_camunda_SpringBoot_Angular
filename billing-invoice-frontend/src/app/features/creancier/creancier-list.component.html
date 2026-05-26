@@ -25,7 +25,7 @@
 ></nz-alert>
 
 <nz-card nzTitle="Recherche" class="section-gap">
-  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="submitSearch()">
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="5">
         <nz-form-item>
@@ -97,20 +97,27 @@
       [nzData]="creanciers"
       [nzBordered]="true"
       [nzFrontPagination]="false"
+      [nzTotal]="totalElements"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
       [nzScroll]="{ x: '1120px' }"
       nzSize="middle"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
     >
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nom</th>
-          <th>Type</th>
-          <th class="col-ice">ICE</th>
-          <th>Banque</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'id' ? sortOrder : null" (nzSortOrderChange)="onSortChange('id', $event)">ID</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'nom' ? sortOrder : null" (nzSortOrderChange)="onSortChange('nom', $event)">Nom</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'typeCreancier' ? sortOrder : null" (nzSortOrderChange)="onSortChange('typeCreancier', $event)">Type</th>
+          <th class="col-ice" [nzSortFn]="true" [nzSortOrder]="sortBy === 'ice' ? sortOrder : null" (nzSortOrderChange)="onSortChange('ice', $event)">ICE</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'banque' ? sortOrder : null" (nzSortOrderChange)="onSortChange('banque', $event)">Banque</th>
           <th>RIB</th>
-          <th class="col-email">Email</th>
-          <th>Telephone</th>
-          <th class="col-date">Date creation</th>
+          <th class="col-email" [nzSortFn]="true" [nzSortOrder]="sortBy === 'email' ? sortOrder : null" (nzSortOrderChange)="onSortChange('email', $event)">Email</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'telephone' ? sortOrder : null" (nzSortOrderChange)="onSortChange('telephone', $event)">Telephone</th>
+          <th class="col-date" [nzSortFn]="true" [nzSortOrder]="sortBy === 'createdDate' ? sortOrder : null" (nzSortOrderChange)="onSortChange('createdDate', $event)">Date creation</th>
           <th>Actions</th>
         </tr>
       </thead>

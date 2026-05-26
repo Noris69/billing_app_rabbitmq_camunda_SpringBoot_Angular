@@ -52,8 +52,10 @@ public class CreancierController {
     public ResponseEntity<Page<CreancierDto>> search(
             CreancierSearchCriteria criteria,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        return ResponseEntity.ok(service.search(criteria, page, size));
+        return ResponseEntity.ok(service.search(criteria, page, size, sortBy, sortDir));
     }
 }

@@ -57,8 +57,11 @@ public class PointDeVenteController {
     @GetMapping("/search")
     public ResponseEntity<Page<PointDeVenteDto>> searchPointDeVente(
             PointDeVenteSearchCriteria criteria,
-            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(service.searchPointDeVente(criteria, page, 10));
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        return ResponseEntity.ok(service.searchPointDeVente(criteria, page, size, sortBy, sortDir));
     }
 
     @GetMapping("/export/pdf")

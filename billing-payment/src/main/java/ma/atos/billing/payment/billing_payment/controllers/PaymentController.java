@@ -47,8 +47,10 @@ public class PaymentController {
     public ResponseEntity<Page<PaymentDto>> search(
             PaymentSearchCriteria criteria,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        return ResponseEntity.ok(service.search(criteria, page, size));
+        return ResponseEntity.ok(service.search(criteria, page, size, sortBy, sortDir));
     }
 }

@@ -14,5 +14,9 @@ public interface PointDeventeService {
 
     PointDeVenteDto getPointDeVenteById(long id);
 
-    Page<PointDeVenteDto> searchPointDeVente(PointDeVenteSearchCriteria criteria, int page, int size);
+    default Page<PointDeVenteDto> searchPointDeVente(PointDeVenteSearchCriteria criteria, int page, int size) {
+        return searchPointDeVente(criteria, page, size, "id", "asc");
+    }
+
+    Page<PointDeVenteDto> searchPointDeVente(PointDeVenteSearchCriteria criteria, int page, int size, String sortBy, String sortDir);
 }

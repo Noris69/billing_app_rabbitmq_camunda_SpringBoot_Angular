@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, defaultIfEmpty, filter, finalize, map, switchMap, take, tap, timer, timeout } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -24,6 +25,8 @@ import { CustomerService } from 'src/app/core/services/customer.service';
 import { PaymentTestService } from 'src/app/core/services/payment-test.service';
 import { PointDeVenteService } from 'src/app/core/services/point-de-vente.service';
 import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
+
+type SortOrder = 'ascend' | 'descend' | null;
 
 @Component({
   selector: 'app-payment-test',
@@ -54,6 +57,8 @@ export class PaymentTestComponent implements OnInit {
   private readonly creancierService = inject(CreancierService);
   private readonly pointDeVenteService = inject(PointDeVenteService);
   private readonly message = inject(NzMessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly modeOptions: ModeReglement[] = ['ESPECES', 'CARTE'];
 
@@ -85,6 +90,11 @@ export class PaymentTestComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   lastPaymentIdBeforeTest: number | null = null;
+  paymentTotalElements = 0;
+  paymentPageIndex = 1;
+  paymentPageSize = 10;
+  paymentSortBy = 'id';
+  paymentSortOrder: SortOrder = 'descend';
 
   constructor() {
     this.form.controls.montantHt.valueChanges.subscribe((value) => {
@@ -93,6 +103,7 @@ export class PaymentTestComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.readPaymentTableStateFromUrl();
     this.updateAmounts(Number(this.form.controls.montantHt.value ?? 0));
     this.searchCustomers();
     this.searchCreanciers();
@@ -142,6 +153,7 @@ export class PaymentTestComponent implements OnInit {
       .subscribe({
         next: (payments) => {
           this.payments = payments;
+          this.paymentTotalElements = Math.max(this.paymentTotalElements, payments.length);
           if (this.hasNewPaymentAfterTest()) {
             this.successMessage = 'Facture envoyee et nouvelle transaction payment detectee.';
             this.message.success(this.successMessage);
@@ -159,11 +171,17 @@ export class PaymentTestComponent implements OnInit {
   }
 
   refreshPayments(): void {
+    this.syncPaymentTableStateToUrl();
     this.refreshing = true;
     this.errorMessage = '';
 
     this.paymentTestService
-      .searchPayments()
+      .searchPayments({
+        page: this.paymentPageIndex - 1,
+        size: this.paymentPageSize,
+        sortBy: this.paymentSortBy,
+        sortDir: this.paymentSortDir()
+      })
       .pipe(
         timeout(15000),
         finalize(() => {
@@ -173,6 +191,7 @@ export class PaymentTestComponent implements OnInit {
       .subscribe({
         next: (page) => {
           this.payments = page.content ?? [];
+          this.paymentTotalElements = page.totalElements ?? this.payments.length;
           this.message.success('Transactions payment rechargees.');
         },
         error: (error: unknown) => {
@@ -180,6 +199,24 @@ export class PaymentTestComponent implements OnInit {
           this.message.error(this.errorMessage);
         }
       });
+  }
+
+  onPaymentPageIndexChange(pageIndex: number): void {
+    this.paymentPageIndex = pageIndex;
+    this.refreshPayments();
+  }
+
+  onPaymentPageSizeChange(pageSize: number): void {
+    this.paymentPageSize = pageSize;
+    this.paymentPageIndex = 1;
+    this.refreshPayments();
+  }
+
+  onPaymentSortChange(sortBy: string, sortOrder: string | null): void {
+    this.paymentSortBy = sortBy;
+    this.applyPaymentSort(sortBy, sortOrder);
+    this.paymentPageIndex = 1;
+    this.refreshPayments();
   }
 
   resetReference(): void {
@@ -319,10 +356,19 @@ export class PaymentTestComponent implements OnInit {
   private waitForPaymentRefresh(): Observable<Payment[]> {
     return timer(1000, 1000).pipe(
       take(10),
-      switchMap(() => this.paymentTestService.searchPayments()),
+      switchMap(() =>
+        this.paymentTestService.searchPayments({
+          page: 0,
+          size: Math.max(this.paymentPageSize, 10),
+          sortBy: this.paymentSortBy,
+          sortDir: this.paymentSortDir()
+        })
+      ),
       map((page) => page.content ?? []),
       tap((payments) => {
         this.payments = payments;
+        this.paymentPageIndex = 1;
+        this.paymentTotalElements = Math.max(this.paymentTotalElements, payments.length);
       }),
       filter((payments) => this.containsNewPayment(payments)),
       take(1),
@@ -362,5 +408,46 @@ export class PaymentTestComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return date.toISOString().slice(0, 10);
+  }
+
+  private paymentSortDir(): 'asc' | 'desc' {
+    return this.paymentSortOrder === 'ascend' ? 'asc' : 'desc';
+  }
+
+  private toSortOrder(sortOrder: string | null): SortOrder {
+    return sortOrder === 'ascend' || sortOrder === 'descend' ? sortOrder : null;
+  }
+
+  private applyPaymentSort(sortBy: string, sortOrder: string | null): void {
+    const nextSortOrder = this.toSortOrder(sortOrder);
+    this.paymentSortBy = nextSortOrder ? sortBy : 'id';
+    this.paymentSortOrder = nextSortOrder ?? 'descend';
+  }
+
+  private readPaymentTableStateFromUrl(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.paymentPageIndex = this.positiveNumber(params.get('paymentPage'), this.paymentPageIndex);
+    this.paymentPageSize = this.positiveNumber(params.get('paymentSize'), this.paymentPageSize);
+    this.paymentSortBy = params.get('paymentSortBy') || this.paymentSortBy;
+    this.paymentSortOrder = this.toSortOrder(params.get('paymentSortOrder')) ?? this.paymentSortOrder;
+  }
+
+  private syncPaymentTableStateToUrl(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        paymentPage: this.paymentPageIndex,
+        paymentSize: this.paymentPageSize,
+        paymentSortBy: this.paymentSortBy,
+        paymentSortOrder: this.paymentSortOrder
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private positiveNumber(value: string | null, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
 }

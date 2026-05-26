@@ -35,6 +35,8 @@ export interface PointDeVenteSearchParams {
   zoneDistribution?: string;
   nomCommercial?: string;
   commission?: number;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
 }
 
 export interface SpringPage<T> {

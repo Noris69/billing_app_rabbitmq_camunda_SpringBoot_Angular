@@ -42,4 +42,12 @@ export interface Payment {
   updatedDate?: string | null;
 }
 
+export interface PaymentSearchParams {
+  page?: number;
+  size?: number;
+  customerId?: number;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
+}
+
 export type PaymentPage = SpringPage<Payment>;

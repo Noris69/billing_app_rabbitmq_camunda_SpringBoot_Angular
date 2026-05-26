@@ -13,6 +13,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -87,9 +88,20 @@ public class CreancierServiceImp implements CreancierService {
     }
 
     @Override
-    public Page<CreancierDto> search(CreancierSearchCriteria criteria, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<CreancierDto> search(CreancierSearchCriteria criteria, int page, int size, String sortBy, String sortDir) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection(sortDir), creancierSortProperty(sortBy)));
         return repository.findAll(buildSpecification(criteria), pageable).map(mapper::toDto);
+    }
+
+    private Sort.Direction sortDirection(String sortDir) {
+        return "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    }
+
+    private String creancierSortProperty(String sortBy) {
+        return switch (sortBy) {
+            case "nom", "typeCreancier", "ice", "banque", "email", "telephone", "createdDate" -> sortBy;
+            default -> "id";
+        };
     }
 
     private Specification<Creancier> buildSpecification(CreancierSearchCriteria criteria) {

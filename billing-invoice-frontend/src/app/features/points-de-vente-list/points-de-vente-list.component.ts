@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -24,6 +24,8 @@ import {
 } from '../../core/models/point-de-vente.model';
 import { PointDeVenteService } from '../../core/services/point-de-vente.service';
 import { extractApiErrorMessage } from '../../core/utils/api-error.util';
+
+type SortOrder = 'ascend' | 'descend' | null;
 
 @Component({
   selector: 'app-points-de-vente-list',
@@ -52,6 +54,8 @@ export class PointsDeVenteListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly pointDeVenteService = inject(PointDeVenteService);
   private readonly message = inject(NzMessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly pointDeVenteTypes = POINT_DE_VENTE_TYPES;
 
@@ -69,12 +73,18 @@ export class PointsDeVenteListComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   totalElements = 0;
+  pageIndex = 1;
+  pageSize = 10;
+  sortBy = 'id';
+  sortOrder: SortOrder = 'ascend';
 
   ngOnInit(): void {
+    this.readTableStateFromUrl();
     this.search();
   }
 
   search(): void {
+    this.syncTableStateToUrl();
     this.loading = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -110,6 +120,29 @@ export class PointsDeVenteListComponent implements OnInit {
       adresse: '',
       telephone: ''
     });
+    this.pageIndex = 1;
+    this.search();
+  }
+
+  submitSearch(): void {
+    this.pageIndex = 1;
+    this.search();
+  }
+
+  onPageIndexChange(pageIndex: number): void {
+    this.pageIndex = pageIndex;
+    this.search();
+  }
+
+  onPageSizeChange(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.pageIndex = 1;
+    this.search();
+  }
+
+  onSortChange(sortBy: string, sortOrder: string | null): void {
+    this.applySort(sortBy, sortOrder);
+    this.pageIndex = 1;
     this.search();
   }
 
@@ -191,11 +224,55 @@ export class PointsDeVenteListComponent implements OnInit {
     const rawValue = this.searchForm.getRawValue();
 
     return {
-      page: 0,
+      page: this.pageIndex - 1,
+      size: this.pageSize,
+      sortBy: this.sortBy,
+      sortDir: this.sortDir(),
       nom: rawValue.nom?.trim() || undefined,
       type_point_de_vente: rawValue.type_point_de_vente ?? undefined,
       adresse: rawValue.adresse?.trim() || undefined,
       telephone: rawValue.telephone?.trim() || undefined
     };
+  }
+
+  private sortDir(): 'asc' | 'desc' {
+    return this.sortOrder === 'descend' ? 'desc' : 'asc';
+  }
+
+  private toSortOrder(sortOrder: string | null): SortOrder {
+    return sortOrder === 'ascend' || sortOrder === 'descend' ? sortOrder : null;
+  }
+
+  private applySort(sortBy: string, sortOrder: string | null): void {
+    const nextSortOrder = this.toSortOrder(sortOrder);
+    this.sortBy = nextSortOrder ? sortBy : 'id';
+    this.sortOrder = nextSortOrder ?? 'ascend';
+  }
+
+  private readTableStateFromUrl(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.pageIndex = this.positiveNumber(params.get('page'), this.pageIndex);
+    this.pageSize = this.positiveNumber(params.get('size'), this.pageSize);
+    this.sortBy = params.get('sortBy') || this.sortBy;
+    this.sortOrder = this.toSortOrder(params.get('sortOrder')) ?? this.sortOrder;
+  }
+
+  private syncTableStateToUrl(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page: this.pageIndex,
+        size: this.pageSize,
+        sortBy: this.sortBy,
+        sortOrder: this.sortOrder
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private positiveNumber(value: string | null, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
 }

@@ -18,6 +18,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -119,8 +120,8 @@ public class PointDeVenteServiceImp implements PointDeventeService {
     }
 
     @Override
-    public Page<PointDeVenteDto> searchPointDeVente(PointDeVenteSearchCriteria criteria, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<PointDeVenteDto> searchPointDeVente(PointDeVenteSearchCriteria criteria, int page, int size, String sortBy, String sortDir) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection(sortDir), pointDeVenteSortProperty(sortBy)));
 
         Specification<PointDeVente> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -181,6 +182,17 @@ public class PointDeVenteServiceImp implements PointDeventeService {
         };
 
         return repository.findAll(spec, pageable).map(this::mapToTypedDto);
+    }
+
+    private Sort.Direction sortDirection(String sortDir) {
+        return "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    }
+
+    private String pointDeVenteSortProperty(String sortBy) {
+        return switch (sortBy) {
+            case "nom", "adresse", "telephone" -> sortBy;
+            default -> "id";
+        };
     }
 
     private PointDeVenteType resolveType(PointDeVente entity) {

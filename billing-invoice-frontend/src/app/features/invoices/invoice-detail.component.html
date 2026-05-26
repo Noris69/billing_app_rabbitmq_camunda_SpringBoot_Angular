@@ -75,15 +75,24 @@
       <dl class="info-grid">
         <div>
           <dt>Customer</dt>
-          <dd>#{{ invoice.customerId || '-' }}</dd>
+          <dd>
+            {{ customerLabel() }}
+            <small *ngIf="invoice.customerId">#{{ invoice.customerId }}</small>
+          </dd>
         </div>
         <div>
           <dt>Creancier</dt>
-          <dd>#{{ invoice.creancierId || '-' }}</dd>
+          <dd>
+            {{ creancierLabel() }}
+            <small *ngIf="invoice.creancierId">#{{ invoice.creancierId }}</small>
+          </dd>
         </div>
         <div>
           <dt>Point vente</dt>
-          <dd>#{{ invoice.pointDeVenteId || '-' }}</dd>
+          <dd>
+            {{ pointDeVenteLabel() }}
+            <small *ngIf="invoice.pointDeVenteId">#{{ invoice.pointDeVenteId }}</small>
+          </dd>
         </div>
       </dl>
     </nz-card>

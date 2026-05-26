@@ -29,6 +29,8 @@ export interface InvoiceSearchParams {
   customerId?: number;
   creancierId?: number;
   pointDeVenteId?: number;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
 }
 
 export type InvoicePage = SpringPage<Invoice>;

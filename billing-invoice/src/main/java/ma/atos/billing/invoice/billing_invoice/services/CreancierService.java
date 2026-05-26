@@ -14,5 +14,9 @@ public interface CreancierService {
 
     CreancierDto getById(Long id);
 
-    Page<CreancierDto> search(CreancierSearchCriteria criteria, int page, int size);
+    default Page<CreancierDto> search(CreancierSearchCriteria criteria, int page, int size) {
+        return search(criteria, page, size, "id", "asc");
+    }
+
+    Page<CreancierDto> search(CreancierSearchCriteria criteria, int page, int size, String sortBy, String sortDir);
 }

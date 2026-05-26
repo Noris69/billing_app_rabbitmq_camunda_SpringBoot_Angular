@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import {
   InvoiceWorkflowRequest,
   InvoiceWorkflowResponse,
-  PaymentPage
+  PaymentPage,
+  PaymentSearchParams
 } from '../models/payment.model';
 
 @Injectable({
@@ -18,12 +19,22 @@ export class PaymentTestService {
   }
 
   searchPaymentsByCustomer(customerId: number): Observable<PaymentPage> {
-    const params = new HttpParams().set('customerId', customerId).set('size', 20);
-    return this.http.get<PaymentPage>('/payment-api/payments/search', { params });
+    return this.searchPayments({ customerId, page: 0, size: 20 });
   }
 
-  searchPayments(): Observable<PaymentPage> {
-    const params = new HttpParams().set('size', 50);
-    return this.http.get<PaymentPage>('/payment-api/payments/search', { params });
+  searchPayments(params: PaymentSearchParams = {}): Observable<PaymentPage> {
+    return this.http.get<PaymentPage>('/payment-api/payments/search', {
+      params: this.toHttpParams(params)
+    });
+  }
+
+  private toHttpParams(params: PaymentSearchParams): HttpParams {
+    return Object.entries(params).reduce((httpParams, [key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return httpParams;
+      }
+
+      return httpParams.set(key, String(value));
+    }, new HttpParams());
   }
 }

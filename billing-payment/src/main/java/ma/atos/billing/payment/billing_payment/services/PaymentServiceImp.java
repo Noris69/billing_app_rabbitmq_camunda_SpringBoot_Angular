@@ -63,11 +63,24 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     @Override
-    public Page<PaymentDto> search(PaymentSearchCriteria criteria, int page, int size) {
+    public Page<PaymentDto> search(PaymentSearchCriteria criteria, int page, int size, String sortBy, String sortDir) {
         return repository.findAll(
                 buildSpecification(criteria),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))
+                PageRequest.of(page, size, Sort.by(sortDirection(sortDir), paymentSortProperty(sortBy)))
         ).map(this::toDto);
+    }
+
+    private Sort.Direction sortDirection(String sortDir) {
+        return "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    }
+
+    private String paymentSortProperty(String sortBy) {
+        return switch (sortBy) {
+            case "customerId", "creancierId", "pointDeVenteId", "amount", "operationType", "createdDate" -> sortBy;
+            case "modeReglement" -> "operationType";
+            case "status" -> "amount";
+            default -> "id";
+        };
     }
 
     private PaymentStatus resolveStatus(PaymentRequestDto request) {

@@ -15,5 +15,9 @@ public interface PaymentService {
 
     List<PaymentDto> findByCustomerId(Long customerId);
 
-    Page<PaymentDto> search(PaymentSearchCriteria criteria, int page, int size);
+    default Page<PaymentDto> search(PaymentSearchCriteria criteria, int page, int size) {
+        return search(criteria, page, size, "id", "desc");
+    }
+
+    Page<PaymentDto> search(PaymentSearchCriteria criteria, int page, int size, String sortBy, String sortDir);
 }

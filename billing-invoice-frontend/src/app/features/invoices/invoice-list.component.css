@@ -23,6 +23,13 @@
   max-width: 150px;
 }
 
+td small {
+  color: #64748b;
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
 @media (max-width: 768px) {
   .toolbar button,
   .toolbar a {

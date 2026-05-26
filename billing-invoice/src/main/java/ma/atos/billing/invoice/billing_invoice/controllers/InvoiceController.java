@@ -84,9 +84,11 @@ public class InvoiceController {
             @RequestParam(required = false) Long creancierId,
             @RequestParam(required = false) Long pointDeVenteId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(sortDirection(sortDir), invoiceSortProperty(sortBy)));
 
         if (reference != null && !reference.isBlank()) {
             return ResponseEntity.ok(repository.findByReferenceContainingIgnoreCase(reference, pageable).map(mapper::toDto));
@@ -105,5 +107,16 @@ public class InvoiceController {
         }
 
         return ResponseEntity.ok(repository.findAll(pageable).map(mapper::toDto));
+    }
+
+    private Sort.Direction sortDirection(String sortDir) {
+        return "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    }
+
+    private String invoiceSortProperty(String sortBy) {
+        return switch (sortBy) {
+            case "reference", "status", "montantHt", "montantTva", "montantTtc", "modeReglement", "createdDate", "dateInvoice", "dateDue" -> sortBy;
+            default -> "id";
+        };
     }
 }

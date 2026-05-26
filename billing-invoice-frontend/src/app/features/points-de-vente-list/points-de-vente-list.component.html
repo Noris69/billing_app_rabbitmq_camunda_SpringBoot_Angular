@@ -26,7 +26,7 @@
 ></nz-alert>
 
 <nz-card nzTitle="Recherche" class="section-gap">
-  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="submitSearch()">
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="6">
         <nz-form-item>
@@ -89,17 +89,24 @@
       [nzData]="pointsDeVente"
       [nzBordered]="true"
       [nzFrontPagination]="false"
+      [nzTotal]="totalElements"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
       [nzScroll]="{ x: '960px' }"
       nzSize="middle"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
     >
       <thead>
         <tr>
-          <th>ID</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'id' ? sortOrder : null" (nzSortOrderChange)="onSortChange('id', $event)">ID</th>
           <th>Type</th>
-          <th>Nom</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'nom' ? sortOrder : null" (nzSortOrderChange)="onSortChange('nom', $event)">Nom</th>
           <th>Code</th>
-          <th>Adresse</th>
-          <th>Telephone</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'adresse' ? sortOrder : null" (nzSortOrderChange)="onSortChange('adresse', $event)">Adresse</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'telephone' ? sortOrder : null" (nzSortOrderChange)="onSortChange('telephone', $event)">Telephone</th>
           <th>Responsable / Commercial</th>
           <th>Actions</th>
         </tr>

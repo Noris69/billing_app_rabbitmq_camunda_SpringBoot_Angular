@@ -12,7 +12,7 @@
 ></nz-alert>
 
 <nz-card nzTitle="Recherche" class="section-gap">
-  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="search()">
+  <form nz-form nzLayout="vertical" [formGroup]="searchForm" (ngSubmit)="submitSearch()">
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="10">
         <nz-form-item>
@@ -54,22 +54,29 @@
       [nzData]="invoices"
       [nzBordered]="true"
       [nzFrontPagination]="false"
+      [nzTotal]="totalElements"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
       [nzScroll]="{ x: '1180px' }"
       nzSize="middle"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
     >
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Reference</th>
-          <th>Status</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'id' ? sortOrder : null" (nzSortOrderChange)="onSortChange('id', $event)">ID</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'reference' ? sortOrder : null" (nzSortOrderChange)="onSortChange('reference', $event)">Reference</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'status' ? sortOrder : null" (nzSortOrderChange)="onSortChange('status', $event)">Status</th>
           <th>Client</th>
           <th>Creancier</th>
           <th>Point vente</th>
-          <th>HT</th>
-          <th>TVA</th>
-          <th>TTC</th>
-          <th>Mode</th>
-          <th class="col-date">Date creation</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'montantHt' ? sortOrder : null" (nzSortOrderChange)="onSortChange('montantHt', $event)">HT</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'montantTva' ? sortOrder : null" (nzSortOrderChange)="onSortChange('montantTva', $event)">TVA</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'montantTtc' ? sortOrder : null" (nzSortOrderChange)="onSortChange('montantTtc', $event)">TTC</th>
+          <th [nzSortFn]="true" [nzSortOrder]="sortBy === 'modeReglement' ? sortOrder : null" (nzSortOrderChange)="onSortChange('modeReglement', $event)">Mode</th>
+          <th class="col-date" [nzSortFn]="true" [nzSortOrder]="sortBy === 'createdDate' ? sortOrder : null" (nzSortOrderChange)="onSortChange('createdDate', $event)">Date creation</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -81,9 +88,18 @@
           <td>
             <nz-tag [nzColor]="statusColor(invoice.status)">{{ invoice.status }}</nz-tag>
           </td>
-          <td>{{ invoice.customerId }}</td>
-          <td>{{ invoice.creancierId }}</td>
-          <td>{{ invoice.pointDeVenteId }}</td>
+          <td>
+            {{ customerLabel(invoice.customerId) }}
+            <small *ngIf="invoice.customerId">#{{ invoice.customerId }}</small>
+          </td>
+          <td>
+            {{ creancierLabel(invoice.creancierId) }}
+            <small *ngIf="invoice.creancierId">#{{ invoice.creancierId }}</small>
+          </td>
+          <td>
+            {{ pointDeVenteLabel(invoice.pointDeVenteId) }}
+            <small *ngIf="invoice.pointDeVenteId">#{{ invoice.pointDeVenteId }}</small>
+          </td>
           <td>{{ invoice.montantHt | number:'1.2-2' }}</td>
           <td>{{ invoice.montantTva | number:'1.2-2' }}</td>
           <td>{{ invoice.montantTtc | number:'1.2-2' }}</td>

@@ -222,20 +222,27 @@
       [nzData]="payments"
       [nzBordered]="true"
       [nzFrontPagination]="false"
+      [nzTotal]="paymentTotalElements"
+      [nzPageIndex]="paymentPageIndex"
+      [nzPageSize]="paymentPageSize"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
       [nzScroll]="{ x: '1120px' }"
       nzSize="middle"
+      (nzPageIndexChange)="onPaymentPageIndexChange($event)"
+      (nzPageSizeChange)="onPaymentPageSizeChange($event)"
     >
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Customer</th>
-          <th>Creancier</th>
-          <th>Point vente</th>
-          <th>Montant</th>
-          <th>Mode</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'id' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('id', $event)">ID</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'customerId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('customerId', $event)">Customer</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'creancierId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('creancierId', $event)">Creancier</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'pointDeVenteId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('pointDeVenteId', $event)">Point vente</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'amount' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('amount', $event)">Montant</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'modeReglement' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('modeReglement', $event)">Mode</th>
           <th>Reference transaction</th>
-          <th>Status</th>
-          <th>Date creation</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'status' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('status', $event)">Status</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'createdDate' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('createdDate', $event)">Date creation</th>
         </tr>
       </thead>
 

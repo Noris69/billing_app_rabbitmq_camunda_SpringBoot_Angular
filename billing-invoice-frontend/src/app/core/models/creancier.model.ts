@@ -33,6 +33,8 @@ export interface CreancierSearchParams {
   email?: string;
   telephone?: string;
   adresse?: string;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
 }
 
 export type CreancierPage = SpringPage<Creancier>;

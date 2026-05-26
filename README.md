@@ -1,144 +1,318 @@
-# 🏦 Bank Transfer & Invoice Payment Management System
+# Bank Transfer & Invoice Payment Management System
 
-Une plateforme moderne d'entreprise pour la **gestion de facturation, d'encaissement et de paiement de factures**. Ce projet est construit sur une architecture microservices hautement découplée et résiliente, s'appuyant sur des technologies de premier plan telles que **Spring Boot**, **Camunda BPM**, **RabbitMQ**, **Apache Camel**, **Vault**, **JasperReports** et un frontend dynamique en **Angular**.
+Plateforme microservices pour la gestion de factures, creanciers, points de vente, customers et paiements.
 
----
+Le projet combine Spring Boot, Angular, RabbitMQ, Camunda, PostgreSQL, Vault, JasperReports, Apache Camel et une API Gateway.
 
-## 🏗️ Architecture Globale & Technologies
+## Architecture
 
-L'application est découpée en **3 microservices indépendants**, **1 API Gateway** et **1 client riche (Frontend)** :
+```text
+Angular Frontend
+       |
+       v
+API Gateway :8085
+       |
+       +--> billing-invoice  :8080
+       |      - factures
+       |      - creanciers
+       |      - points de vente
+       |      - workflow Camunda
+       |      - export PDF JasperReports
+       |      - events RabbitMQ
+       |
+       +--> billing-payment  :8082
+       |      - transactions payment
+       |      - listener PaymentRequestedEvent
+       |      - publisher PaymentCompletedEvent
+       |
+       +--> billing-customer :8083
+              - referentiel customers
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                      BILLING-INVOICE-FRONTEND (Angular)                │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ (REST API & Auth)
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                       BILLING-INVOICE (Microservice)                   │
-│   - Gestion des Factures, Créanciers & Points de Vente                  │
-│   - Orchestration des processus métier (Camunda BPM 7)                 │
-│   - Exportation de données en temps réel (Apache Camel)                │
-│   - Génération de rapports PDF (JasperReports)                         │
-└─────────────────┬──────────────────────────────────────▲───────────────┘
-                  │ (PaymentRequestedEvent)              │ (PaymentCompletedEvent)
-                  ▼                                      │
-          ┌───────────────┐                      ┌───────┴───────┐
-          │   RabbitMQ    ├─────────────────────►│   RabbitMQ    │
-          │   Exchange    │                      │     Queue     │
-          └───────┬───────┘                      └───────▲───────┘
-                  │                                      │
-                  └────────────────► ┌───────────────────┴───────────┐
-                                     │   BILLING-PAYMENT (Microservice)  │
-                                     │   - Enregistrement des Paiements  │
-                                     │   - Simulation de Transactions    │
-                                     └───────────────────────────────┘
-                                                     ▲
-                                                     │ (REST Search)
-                                     ┌───────────────┴───────────────┐
-                                     │  BILLING-CUSTOMER (Microservice)│
-                                     │   - Référentiel des Clients   │
-                                     └───────────────────────────────┘
+RabbitMQ
+  - communication asynchrone invoice/payment
+
+Vault
+  - stockage centralise des secrets backend
+
+PostgreSQL
+  - schemas invoice, payment, customer
 ```
 
-### 🛠️ Stack Technique
+## Stack technique
 
-*   **Frontend :** Angular 18+, Ng-Zorro Ant Design (UI), RxJS.
-*   **API Gateway :** Spring Cloud Gateway pour centraliser le routage, la sécurité d'entrée et le CORS.
-*   **Backend (Microservices) :** Spring Boot 3.5+, Spring Data JPA, Spring Security (OAuth2 Resource Server), Spring Cloud Config.
-*   **Workflow Engine :** Camunda BPM 7.24 (Webapp Cockpit/Tasklist intégrée).
-*   **Message Broker :** RabbitMQ (AMQP) pour la communication asynchrone et événementielle.
-*   **Intégration de Flux :** Apache Camel 4 pour l'export automatisé de fichiers JSON.
-*   **Reporting :** JasperReports 6 pour l'export de rapports PDF professionnels.
-*   **Base de Données :** PostgreSQL (Production/Dev), H2 (Tests/Dev rapide) & Flyway pour le versioning de base de données.
-*   **Gestion des Secrets :** HashiCorp Vault pour centraliser les secrets applicatifs (PostgreSQL, RabbitMQ, Keycloak).
-*   **Cache :** Spring Cache avec gestion automatisée du cycle de vie des données.
+- Frontend : Angular, Ng Zorro, RxJS.
+- API Gateway : Spring Cloud Gateway.
+- Backend : Spring Boot 3.5, Spring Data JPA, Spring Security Resource Server.
+- Workflow : Camunda BPM.
+- Messaging : RabbitMQ.
+- Reporting : JasperReports.
+- Integration : Apache Camel.
+- Base de donnees : PostgreSQL.
+- Secrets : HashiCorp Vault.
+- Build : Maven, Maven Wrapper quand disponible, npm.
 
----
+## Nouveautes ajoutees
 
-## 🌟 Fonctionnalités Clés
+### API Gateway
 
-### 1. Gestion des Créanciers (CRUD complet)
-*   Enregistrement et édition des organismes émetteurs de factures (Télécoms, Électricité, Administrations).
-*   Suivi des informations d'identité commerciale : Nom, Type de Créancier, Identifiant Commun de l'Entreprise (ICE), Registre du Commerce (RC), RIB, Banque et coordonnées complètes.
+Un microservice `api-gateway` centralise maintenant les appels frontend.
 
-### 2. Gestion des Points de Vente (Héritage Single Table JPA)
-*   Gestion unifiée des canaux d'encaissement physique ou numérique avec distinctions métier :
-    *   **Agences :** avec Code agence, Nom du responsable, Région et Type d'agence.
-    *   **Distributeurs :** avec Code distributeur, Zone géographique, Nom commercial et Taux de commission de transaction.
-*   **Optimisation des performances :** Cache applicatif Spring Cache implémenté pour éliminer les requêtes DB redondantes sur les points de vente.
-*   **Export Camel Automatique :** Chaque création de point de vente déclenche une route Camel qui exporte la fiche au format JSON cryptique dans le dossier local `exports/points-de-vente`.
-*   **Export PDF JasperReports :** Export instantané d'un rapport PDF professionnel regroupant les points de vente filtrés.
+Routes principales :
 
-### 3. Orchestration & Traitement Événementiel des Paiements
-*   **Workflow Camunda BPM :** Cycle de vie de la facture entièrement modélisé (`invoice-payment-process.bpmn`).
-*   **Couplage Faible (RabbitMQ) :**
-    1.  Le workflow valide la facture et publie un événement `PaymentRequestedEvent` sur RabbitMQ.
-    2.  Le microservice `billing-payment` consomme l'événement, exécute la transaction financière et enregistre le paiement.
-    3.  Un événement `PaymentCompletedEvent` est publié en retour.
-    4.  Le service de facturation met à jour le statut de la facture à `PAYEE` ou la remet `EN_ATTENTE`.
+```text
+/api/**          -> billing-invoice
+/customer-api/** -> billing-customer
+/payment-api/**  -> billing-payment
+```
 
-### 4. Interface Interactive de Simulation
-*   Interface Angular dédiée pour émettre une facture de test à la volée.
-*   Sélection dynamique du Client, Créancier et Point de Vente.
-*   Simulation asynchrone du succès ou de l'échec d'une transaction, avec actualisation en temps réel de l'état du paiement à l'écran sans rafraîchir la page (polling intelligent RxJS).
+La gateway ecoute sur :
 
----
+```text
+http://localhost:8085
+```
 
-## 🔄 Flux Transactionnel (Détail Technique)
+Le frontend Angular utilise cette gateway via `proxy.conf.json`.
+
+### Vault
+
+HashiCorp Vault a ete integre pour sortir les secrets des fichiers de configuration.
+
+Objectifs :
+
+- ne plus mettre les mots de passe en clair dans les `application.yaml` ;
+- centraliser les secrets ;
+- faciliter le changement de credentials sans modifier le code ;
+- garder une configuration plus propre pour PostgreSQL, RabbitMQ et Keycloak.
+
+Secrets attendus :
+
+```text
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+KEYCLOAK_ISSUER_URI
+RABBITMQ_HOST
+RABBITMQ_PORT
+RABBITMQ_USERNAME
+RABBITMQ_PASSWORD
+```
+
+Script de chargement :
+
+```powershell
+.\scripts\vault-put-secrets.ps1
+```
+
+Chemin Vault utilise :
+
+```text
+secret/application
+```
+
+### Frontend responsive
+
+Le frontend Angular a ete ameliore pour mieux fonctionner sur desktop et mobile :
+
+- sidebar desktop ;
+- navigation mobile ;
+- tableaux avec scroll horizontal controle ;
+- colonnes longues mieux gerees ;
+- meilleur affichage des dates, emails, ICE, references et montants ;
+- layout plus stable sur petits ecrans.
+
+### Dashboard
+
+Une page dashboard a ete ajoutee comme page d'accueil.
+
+Elle donne un acces rapide aux principales rubriques :
+
+- factures ;
+- creanciers ;
+- points de vente ;
+- test paiement ;
+- transactions recentes.
+
+### Factures
+
+Ameliorations ajoutees :
+
+- page liste des factures ;
+- page detail facture `/factures/:id` ;
+- endpoint backend `GET /api/invoices/{id}` ;
+- affichage des vrais noms au lieu des IDs seuls :
+  - customer ;
+  - creancier ;
+  - point de vente ;
+- suivi simple de l'etat facture/paiement ;
+- tri serveur ;
+- pagination serveur ;
+- etat de table conserve dans l'URL.
+
+Exemple :
+
+```text
+/factures?page=2&size=20&sortBy=createdDate&sortOrder=descend
+```
+
+### Creanciers
+
+Ameliorations ajoutees :
+
+- CRUD complet ;
+- recherche multi-criteres ;
+- pagination serveur ;
+- tri serveur ;
+- notifications toast ;
+- conservation de l'etat de table dans l'URL.
+
+Colonnes triables :
+
+- ID ;
+- nom ;
+- type ;
+- ICE ;
+- banque ;
+- email ;
+- telephone ;
+- date creation.
+
+### Points de vente
+
+Ameliorations ajoutees :
+
+- CRUD complet ;
+- recherche multi-criteres ;
+- export PDF ;
+- pagination serveur ;
+- tri serveur ;
+- correction du backend pour respecter le parametre `size` ;
+- notifications toast ;
+- conservation de l'etat de table dans l'URL.
+
+Colonnes triables :
+
+- ID ;
+- nom ;
+- adresse ;
+- telephone.
+
+### Transactions payment
+
+Ameliorations ajoutees :
+
+- affichage des vrais noms customer, creancier et point de vente ;
+- mode de paiement affiche correctement ;
+- date creation affichee ;
+- pagination serveur ;
+- tri serveur ;
+- conservation de l'etat de table dans l'URL.
+
+Exemple :
+
+```text
+/test-paiement?paymentPage=2&paymentSize=20&paymentSortBy=amount&paymentSortOrder=descend
+```
+
+Colonnes triables :
+
+- ID ;
+- customer ;
+- creancier ;
+- point vente ;
+- montant ;
+- mode ;
+- status ;
+- date creation.
+
+### Test paiement
+
+La page de test paiement permet de declencher un workflow complet :
+
+1. Creation d'une facture de test.
+2. Selection d'un customer depuis le microservice `billing-customer`.
+3. Selection d'un creancier.
+4. Selection d'un point de vente.
+5. Envoi d'un `PaymentRequestedEvent` via RabbitMQ.
+6. Creation d'une transaction dans `billing-payment`.
+7. Retour d'un `PaymentCompletedEvent`.
+8. Mise a jour du statut facture.
+
+Modes autorises :
+
+```text
+ESPECES
+CARTE
+```
+
+## Flux paiement
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Front as Frontend (Angular)
-    participant Invoice as Microservice Invoice (Camunda)
-    participant RMQ as RabbitMQ (Broker)
-    participant Payment as Microservice Payment
+    participant Front as Angular Frontend
+    participant Gateway as API Gateway
+    participant Invoice as billing-invoice
+    participant Rabbit as RabbitMQ
+    participant Payment as billing-payment
+    participant Customer as billing-customer
 
-    Front->>Invoice: POST /api/workflows/invoice-payment/start
-    Note over Invoice: Camunda démarre l'instance<br/>CreateInvoiceDelegate crée la facture (EN_ATTENTE)
-    Invoice-->>RMQ: Publie PaymentRequestedEvent (Exchange)
-    Invoice-->>Front: Retourne l'ID d'instance de workflow
-    Note over Payment: PaymentRequestedListener capte le message
-    Payment->>Payment: Enregistre le Payment en base
-    Payment-->>RMQ: Publie PaymentCompletedEvent (SUCCESS/FAILED)
-    Note over Invoice: PaymentCompletedListener traite le résultat
-    Invoice->>Invoice: Met à jour le statut de l'Invoice (PAYEE/EN_ATTENTE)
-    Note over Front: Le Polling RxJS détecte la nouvelle transaction
-    Front->>Front: Affiche le statut final sur l'IHM
+    Front->>Gateway: POST /api/workflows/invoice-payment/start
+    Gateway->>Invoice: Forward request
+    Invoice->>Customer: Reference customer by id
+    Invoice->>Invoice: Create invoice EN_ATTENTE
+    Invoice->>Rabbit: Publish PaymentRequestedEvent
+    Payment->>Rabbit: Consume PaymentRequestedEvent
+    Payment->>Payment: Create payment transaction
+    Payment->>Rabbit: Publish PaymentCompletedEvent
+    Invoice->>Rabbit: Consume PaymentCompletedEvent
+    Invoice->>Invoice: Update invoice status
+    Front->>Gateway: Poll /payment-api/payments/search
+    Gateway->>Payment: Search payments
+    Payment-->>Front: New transaction visible
 ```
 
----
+## Ports par defaut
 
-## 🚀 Guide de Démarrage Rapide
+```text
+api-gateway      : 8085
+billing-invoice  : 8080
+billing-payment  : 8082
+billing-customer : 8083
+RabbitMQ AMQP    : 5672
+RabbitMQ UI      : 15672
+Vault            : 8200
+Angular frontend : 4200
+```
 
-### Prérequis
-*   **Java 17** ou supérieur.
-*   **Node.js 18+** et **Angular CLI 18+**.
-*   **Maven** 3.8+.
-*   **Docker** (pour exécuter RabbitMQ et PostgreSQL facilement) ou des instances locales installées.
+## Demarrage rapide
 
----
+### 1. Lancer l'infrastructure
 
-### Étape 1 : Lancer l'infrastructure (RabbitMQ, Vault & Base de données)
-Si vous disposez de Docker, vous pouvez exécuter un conteneur RabbitMQ en arrière-plan :
+RabbitMQ :
+
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
-*L'interface d'administration de RabbitMQ sera disponible sur http://localhost:15672 (identifiants par défaut : `guest` / `guest`).*
 
-L'application utilise aussi HashiCorp Vault pour charger les secrets au démarrage des microservices :
+Vault :
+
 ```bash
 docker compose up -d vault
 ```
 
-Vault local est disponible sur http://localhost:8200 avec le token de développement `root`.
+Vault local :
 
-Avant de démarrer les microservices, chargez les secrets dans Vault :
+```text
+http://localhost:8200
+token: root
+```
+
+Charger les secrets :
+
 ```powershell
-$env:DB_URL="jdbc:postgresql://host:5432/db"
-$env:DB_USERNAME="root"
-$env:DB_PASSWORD="mot-de-passe"
+$env:DB_URL="jdbc:postgresql://localhost:5432/billing"
+$env:DB_USERNAME="postgres"
+$env:DB_PASSWORD="postgres"
 $env:KEYCLOAK_ISSUER_URI="http://localhost:8081/realms/billing"
 $env:RABBITMQ_HOST="localhost"
 $env:RABBITMQ_PORT="5672"
@@ -148,69 +322,139 @@ $env:RABBITMQ_PASSWORD="guest"
 .\scripts\vault-put-secrets.ps1
 ```
 
-Les secrets sont stockés dans `secret/application` et sont lus par Spring Cloud Vault via `spring.config.import: optional:vault://`.
+### 2. Demarrer les microservices
 
----
+Depuis la racine du projet :
 
-### Étape 2 : Configurer et démarrer les Microservices
-Chaque microservice Spring Boot est indépendant et dispose de son fichier de configuration `application.yaml` sous `src/main/resources`. Les valeurs sensibles ne sont plus stockées en clair dans ces fichiers : elles sont résolues depuis Vault avec les clés `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `KEYCLOAK_ISSUER_URI`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME` et `RABBITMQ_PASSWORD`.
+```powershell
+cd billing-customer
+mvn spring-boot:run
+```
 
-1.  **Démarrer le service Client (`billing-customer`) :**
-    ```bash
-    cd billing-customer
-    mvn spring-boot:run
-    ```
-2.  **Démarrer le service Paiement (`billing-payment`) :**
-    ```bash
-    cd ../billing-payment
-    mvn spring-boot:run
-    ```
-3.  **Démarrer le service Facturation (`billing-invoice`) :**
-    ```bash
-    cd ../billing-invoice
-    mvn spring-boot:run
-    ```
-4.  **Démarrer l'API Gateway (`api-gateway`) :**
-    ```bash
-    cd ../api-gateway
-    ./mvnw spring-boot:run
-    ```
+```powershell
+cd ..\billing-payment
+.\mvnw.cmd spring-boot:run
+```
 
-La gateway est disponible sur http://localhost:8085 et route les appels vers les microservices :
+```powershell
+cd ..\billing-invoice
+.\mvnw.cmd spring-boot:run
+```
 
-*   `/api/**` vers `billing-invoice`
-*   `/api/customers/**` et `/customer-api/**` vers `billing-customer`
-*   `/api/payments/**` et `/payment-api/**` vers `billing-payment`
+```powershell
+cd ..\api-gateway
+.\mvnw.cmd spring-boot:run
+```
 
-*Le service de facturation embarque également le moteur Camunda. La console Camunda Cockpit est accessible à l'adresse http://localhost:8081/camunda.*
+### 3. Demarrer le frontend
 
----
+Le frontend se trouve dans :
 
-### Étape 3 : Démarrer le Frontend Angular (`billing-invoice-frontend`)
-1.  Accédez au répertoire du frontend et installez les dépendances :
-    ```bash
-    cd ../billing-invoice-frontend
-    npm install
-    ```
-2.  Lancez le serveur de développement :
-    ```bash
-    npm run start
-    ```
-3.  Ouvrez votre navigateur sur **http://localhost:4200**.
+```text
+C:\Users\a953702\projet_formation\front_bank\billing-invoice-frontend
+```
 
----
+Commandes :
 
-## 🧪 Simulation d'un Scénario de Test
-1.  Rendez-vous sur l'onglet **Créanciers** pour ajouter un émetteur ou vérifier la liste.
-2.  Allez sur l'onglet **Points de vente** pour ajouter une agence ou un distributeur de test.
-3.  Rendez-vous sur la page **Test Paiement** :
-    *   Le formulaire est pré-rempli avec des identifiants et des montants fictifs.
-    *   Sélectionnez un client, un créancier et un point de vente.
-    *   Cochez ou décochez "Paiement réussi" pour simuler une réussite ou un rejet de transaction.
-    *   Cliquez sur **Lancer le Test**.
-    *   Vous verrez instantanément la requête être soumise au workflow Camunda, envoyée à RabbitMQ et la transaction financière s'afficher en temps réel dans la table des paiements !
+```powershell
+cd C:\Users\a953702\projet_formation\front_bank\billing-invoice-frontend
+npm install
+npm start
+```
 
----
+Application :
 
-## 📄 Licence
-Ce projet est sous licence MIT. N'hésitez pas à l'utiliser et à l'enrichir dans vos projets de formation ou d'entreprise !
+```text
+http://localhost:4200
+```
+
+## Build et verification
+
+Frontend :
+
+```powershell
+npm run build
+```
+
+Microservice invoice :
+
+```powershell
+cd billing-invoice
+.\mvnw.cmd -q -DskipTests compile
+```
+
+Microservice payment :
+
+```powershell
+cd billing-payment
+.\mvnw.cmd -q -DskipTests compile
+```
+
+API Gateway :
+
+```powershell
+cd api-gateway
+.\mvnw.cmd -q -DskipTests compile
+```
+
+## Endpoints principaux
+
+### Gateway
+
+```text
+GET http://localhost:8085/actuator/health
+```
+
+### Invoice
+
+```text
+GET  /api/invoices/search
+GET  /api/invoices/{id}
+GET  /api/invoices/{id}/export/pdf
+POST /api/workflows/invoice-payment/start
+GET  /api/creanciers/search
+GET  /api/points-de-vente/search
+```
+
+### Customer
+
+```text
+GET /customer-api/customers/search
+```
+
+### Payment
+
+```text
+GET /payment-api/payments/search
+GET /payment-api/payments/{id}
+```
+
+## Parametres de pagination et tri
+
+Les endpoints de recherche acceptent :
+
+```text
+page
+size
+sortBy
+sortDir
+```
+
+Exemple :
+
+```text
+/api/invoices/search?page=0&size=20&sortBy=createdDate&sortDir=desc
+```
+
+## Notes importantes
+
+- Les customers doivent venir du microservice `billing-customer`.
+- Les transactions doivent venir du microservice `billing-payment`.
+- Les factures, creanciers et points de vente viennent du microservice `billing-invoice`.
+- Le microservice payment ne doit pas utiliser une table customer locale comme source de verite.
+- RabbitMQ peut rejouer des anciens messages si les queues ne sont pas videes ; en cas d'erreurs en boucle, verifier les messages en attente.
+- Vault est utilise par les backends, pas directement par Angular.
+
+## Licence
+
+Projet de formation.
