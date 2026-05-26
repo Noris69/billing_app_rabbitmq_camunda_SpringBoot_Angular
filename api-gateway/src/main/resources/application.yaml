@@ -1,0 +1,78 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: optional:vault://
+
+  cloud:
+    config:
+      enabled: false
+    vault:
+      uri: ${VAULT_URI:http://localhost:8200}
+      token: ${VAULT_TOKEN:root}
+      kv:
+        enabled: true
+        backend: secret
+        application-name: api-gateway
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - http://localhost:4200
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - '*'
+            exposed-headers:
+              - Authorization
+            allow-credentials: true
+      routes:
+        - id: billing-customer-api
+          uri: ${BILLING_CUSTOMER_URI:http://localhost:8083}
+          predicates:
+            - Path=/customer-api/**
+          filters:
+            - RewritePath=/customer-api/(?<segment>.*), /api/$\{segment}
+
+        - id: billing-customer-direct
+          uri: ${BILLING_CUSTOMER_URI:http://localhost:8083}
+          predicates:
+            - Path=/api/customers/**
+
+        - id: billing-payment-api
+          uri: ${BILLING_PAYMENT_URI:http://localhost:8082}
+          predicates:
+            - Path=/payment-api/**
+          filters:
+            - RewritePath=/payment-api/(?<segment>.*), /api/$\{segment}
+
+        - id: billing-payment-direct
+          uri: ${BILLING_PAYMENT_URI:http://localhost:8082}
+          predicates:
+            - Path=/api/payments/**
+
+        - id: billing-invoice-api
+          uri: ${BILLING_INVOICE_URI:http://localhost:8080}
+          predicates:
+            - Path=/api/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

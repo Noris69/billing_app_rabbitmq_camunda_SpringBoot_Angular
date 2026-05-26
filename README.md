@@ -6,7 +6,7 @@ Une plateforme moderne d'entreprise pour la **gestion de facturation, d'encaisse
 
 ## 🏗️ Architecture Globale & Technologies
 
-L'application est découpée en **3 microservices indépendants** et **1 client riche (Frontend)** :
+L'application est découpée en **3 microservices indépendants**, **1 API Gateway** et **1 client riche (Frontend)** :
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -44,6 +44,7 @@ L'application est découpée en **3 microservices indépendants** et **1 client 
 ### 🛠️ Stack Technique
 
 *   **Frontend :** Angular 18+, Ng-Zorro Ant Design (UI), RxJS.
+*   **API Gateway :** Spring Cloud Gateway pour centraliser le routage, la sécurité d'entrée et le CORS.
 *   **Backend (Microservices) :** Spring Boot 3.5+, Spring Data JPA, Spring Security (OAuth2 Resource Server), Spring Cloud Config.
 *   **Workflow Engine :** Camunda BPM 7.24 (Webapp Cockpit/Tasklist intégrée).
 *   **Message Broker :** RabbitMQ (AMQP) pour la communication asynchrone et événementielle.
@@ -169,6 +170,17 @@ Chaque microservice Spring Boot est indépendant et dispose de son fichier de co
     cd ../billing-invoice
     mvn spring-boot:run
     ```
+4.  **Démarrer l'API Gateway (`api-gateway`) :**
+    ```bash
+    cd ../api-gateway
+    ./mvnw spring-boot:run
+    ```
+
+La gateway est disponible sur http://localhost:8085 et route les appels vers les microservices :
+
+*   `/api/**` vers `billing-invoice`
+*   `/api/customers/**` et `/customer-api/**` vers `billing-customer`
+*   `/api/payments/**` et `/payment-api/**` vers `billing-payment`
 
 *Le service de facturation embarque également le moteur Camunda. La console Camunda Cockpit est accessible à l'adresse http://localhost:8081/camunda.*
 
