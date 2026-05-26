@@ -1,32 +1,26 @@
 {
   "/api/customers": {
-    "target": "http://localhost:8083",
+    "target": "http://localhost:8085",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/api": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8085",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/payment-api": {
-    "target": "http://localhost:8082",
+    "target": "http://localhost:8085",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-      "^/payment-api": "/api"
-    }
+    "logLevel": "debug"
   },
   "/customer-api": {
-    "target": "http://localhost:8083",
+    "target": "http://localhost:8085",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-      "^/customer-api": "/api"
-    }
+    "logLevel": "debug"
   }
 }

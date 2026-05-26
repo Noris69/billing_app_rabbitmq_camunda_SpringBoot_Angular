@@ -5,7 +5,14 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'creanciers',
+    redirectTo: 'dashboard',
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        (module) => module.DashboardComponent
+      ),
   },
   {
     path: 'creanciers',
@@ -55,6 +62,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'factures/:id',
+    loadComponent: () =>
+      import('./features/invoices/invoice-detail.component').then(
+        (module) => module.InvoiceDetailComponent
+      ),
+  },
+  {
     path: 'test-paiement',
     loadComponent: () =>
       import('./features/payment-test/payment-test.component').then(
@@ -63,6 +77,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'creanciers',
+    redirectTo: 'dashboard',
   },
 ];

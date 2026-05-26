@@ -1,0 +1,108 @@
+<div class="detail-header">
+  <div>
+    <a routerLink="/factures" class="back-link">Retour aux factures</a>
+    <h1 class="page-title">Facture #{{ invoice?.id }}</h1>
+    <p class="page-subtitle">{{ invoice?.reference || 'Detail facture' }}</p>
+  </div>
+
+  <nz-tag *ngIf="invoice" [nzColor]="statusColor(invoice.status)">{{ invoice.status }}</nz-tag>
+</div>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<div class="loading-state" *ngIf="loading">
+  <nz-spin nzSimple></nz-spin>
+  <span>Chargement du detail...</span>
+</div>
+
+<ng-container *ngIf="invoice">
+  <section class="detail-grid">
+    <nz-card nzTitle="Informations">
+      <dl class="info-grid">
+        <div>
+          <dt>Reference</dt>
+          <dd>{{ invoice.reference }}</dd>
+        </div>
+        <div>
+          <dt>Mode</dt>
+          <dd>{{ invoice.modeReglement || '-' }}</dd>
+        </div>
+        <div>
+          <dt>Date facture</dt>
+          <dd>{{ invoice.dateInvoice | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Date echeance</dt>
+          <dd>{{ invoice.dateDue | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Date creation</dt>
+          <dd>{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</dd>
+        </div>
+        <div>
+          <dt>Description</dt>
+          <dd>{{ invoice.description || '-' }}</dd>
+        </div>
+      </dl>
+    </nz-card>
+
+    <nz-card nzTitle="Montants">
+      <dl class="amount-grid">
+        <div>
+          <dt>Montant HT</dt>
+          <dd>{{ invoice.montantHt | number:'1.2-2' }} MAD</dd>
+        </div>
+        <div>
+          <dt>TVA</dt>
+          <dd>{{ invoice.montantTva | number:'1.2-2' }} MAD</dd>
+        </div>
+        <div class="total">
+          <dt>Total TTC</dt>
+          <dd>{{ invoice.montantTtc | number:'1.2-2' }} MAD</dd>
+        </div>
+      </dl>
+    </nz-card>
+  </section>
+
+  <section class="detail-grid section-gap">
+    <nz-card nzTitle="Parties">
+      <dl class="info-grid">
+        <div>
+          <dt>Customer</dt>
+          <dd>#{{ invoice.customerId || '-' }}</dd>
+        </div>
+        <div>
+          <dt>Creancier</dt>
+          <dd>#{{ invoice.creancierId || '-' }}</dd>
+        </div>
+        <div>
+          <dt>Point vente</dt>
+          <dd>#{{ invoice.pointDeVenteId || '-' }}</dd>
+        </div>
+      </dl>
+    </nz-card>
+
+    <nz-card nzTitle="Suivi">
+      <ol class="timeline">
+        <li class="done">
+          <strong>Facture creee</strong>
+          <span>{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</span>
+        </li>
+        <li class="done">
+          <strong>Paiement demande</strong>
+          <span>{{ invoice.modeReglement || '-' }}</span>
+        </li>
+        <li [class.done]="isPaid(invoice.status)" [class.pending]="!isPaid(invoice.status)">
+          <strong>{{ isPaid(invoice.status) ? 'Paiement confirme' : 'Paiement en attente' }}</strong>
+          <span>{{ invoice.status }}</span>
+        </li>
+      </ol>
+    </nz-card>
+  </section>
+</ng-container>

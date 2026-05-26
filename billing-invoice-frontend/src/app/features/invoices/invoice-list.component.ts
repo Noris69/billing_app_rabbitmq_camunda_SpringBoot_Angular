@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -23,6 +24,7 @@ import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     NzAlertModule,
     NzButtonModule,
     NzCardModule,

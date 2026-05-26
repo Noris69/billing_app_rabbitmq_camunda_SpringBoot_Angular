@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { AuthService } from './core/auth/auth.service';
@@ -8,7 +8,7 @@ import { AuthService } from './core/auth/auth.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NzButtonModule, NzLayoutModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NzButtonModule, NzLayoutModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

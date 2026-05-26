@@ -48,6 +48,14 @@ public class InvoiceController {
         return notificationService.subscribe();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<InvoiceDto> getById(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(mapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}/export/pdf")
     public ResponseEntity<byte[]> exportInvoiceReceiptPdf(@PathVariable Long id) {
         try {

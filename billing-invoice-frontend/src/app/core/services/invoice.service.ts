@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { InvoicePage, InvoiceSearchParams } from '../models/invoice.model';
+import { Invoice, InvoicePage, InvoiceSearchParams } from '../models/invoice.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,10 +16,8 @@ export class InvoiceService {
     });
   }
 
-  exportInvoicePdf(id: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${id}/export/pdf`, {
-      responseType: 'blob'
-    });
+  getInvoiceById(id: number): Observable<Invoice> {
+    return this.http.get<Invoice>(`${this.apiUrl}/${id}`);
   }
 
   private toHttpParams(params: InvoiceSearchParams): HttpParams {

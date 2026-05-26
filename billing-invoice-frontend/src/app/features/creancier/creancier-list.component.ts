@@ -10,6 +10,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -50,6 +51,7 @@ import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
 export class CreancierListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly creancierService = inject(CreancierService);
+  private readonly message = inject(NzMessageService);
 
   readonly typeOptions = TYPE_CREANCIER_OPTIONS;
 
@@ -125,10 +127,12 @@ export class CreancierListComponent implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage = `Le creancier ${creancier.nom} a ete supprime.`;
+          this.message.success(this.successMessage);
           this.search();
         },
         error: (error: unknown) => {
           this.errorMessage = extractApiErrorMessage(error, 'La suppression du creancier a echoue.');
+          this.message.error(this.errorMessage);
         }
       });
   }

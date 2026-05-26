@@ -4,6 +4,11 @@
   flex-wrap: wrap;
 }
 
+.toolbar button,
+.toolbar a {
+  flex: 0 0 auto;
+}
+
 .inline-field {
   display: flex;
   gap: 8px;
@@ -40,6 +45,11 @@
 }
 
 @media (max-width: 768px) {
+  .toolbar button,
+  .toolbar a {
+    flex: 1 1 100%;
+  }
+
   .inline-field {
     flex-direction: column;
   }

@@ -10,6 +10,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -23,7 +24,6 @@ import { CustomerService } from 'src/app/core/services/customer.service';
 import { PaymentTestService } from 'src/app/core/services/payment-test.service';
 import { PointDeVenteService } from 'src/app/core/services/point-de-vente.service';
 import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
-import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-payment-test',
@@ -53,6 +53,7 @@ export class PaymentTestComponent implements OnInit {
   private readonly customerService = inject(CustomerService);
   private readonly creancierService = inject(CreancierService);
   private readonly pointDeVenteService = inject(PointDeVenteService);
+  private readonly message = inject(NzMessageService);
 
   readonly modeOptions: ModeReglement[] = ['ESPECES', 'CARTE'];
 
@@ -143,13 +144,16 @@ export class PaymentTestComponent implements OnInit {
           this.payments = payments;
           if (this.hasNewPaymentAfterTest()) {
             this.successMessage = 'Facture envoyee et nouvelle transaction payment detectee.';
+            this.message.success(this.successMessage);
           } else {
             this.errorMessage =
               'Facture envoyee, mais aucune nouvelle transaction payment detectee. Verifie le listener RabbitMQ billing-payment.';
+            this.message.warning(this.errorMessage);
           }
         },
         error: (error: unknown) => {
           this.errorMessage = extractApiErrorMessage(error, 'Le test paiement a echoue.');
+          this.message.error(this.errorMessage);
         }
       });
   }
@@ -169,9 +173,11 @@ export class PaymentTestComponent implements OnInit {
       .subscribe({
         next: (page) => {
           this.payments = page.content ?? [];
+          this.message.success('Transactions payment rechargees.');
         },
         error: (error: unknown) => {
           this.errorMessage = extractApiErrorMessage(error, 'Impossible de charger les paiements.');
+          this.message.error(this.errorMessage);
         }
       });
   }

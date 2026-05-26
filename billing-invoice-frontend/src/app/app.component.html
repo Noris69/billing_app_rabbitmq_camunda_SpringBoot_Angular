@@ -1,23 +1,44 @@
 <nz-layout class="app-layout">
-  <nz-header class="app-header">
+  <nz-sider class="app-sider" nzBreakpoint="lg" [nzCollapsedWidth]="0">
     <div class="brand-block">
       <div class="brand-title">Billing Invoice</div>
-      <div class="brand-subtitle">Gestion des creanciers et points de vente</div>
+      <div class="brand-subtitle">Facturation et encaissement</div>
     </div>
 
-    <div class="nav-actions">
-      <a nz-button routerLink="/creanciers">Creanciers</a>
-      <a nz-button nzType="primary" routerLink="/points-de-vente">Points de vente</a>
-      <a nz-button routerLink="/factures">Factures</a>
-      <a nz-button routerLink="/test-paiement">Test paiement</a>
-      <span class="user-name">{{ username }}</span>
-      <button nz-button type="button" (click)="logout()">Deconnexion</button>
-    </div>
-  </nz-header>
+    <nav class="side-nav" aria-label="Navigation principale">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/factures" routerLinkActive="active">Factures</a>
+      <a routerLink="/test-paiement" routerLinkActive="active">Paiements</a>
+      <a routerLink="/creanciers" routerLinkActive="active">Creanciers</a>
+      <a routerLink="/points-de-vente" routerLinkActive="active">Points de vente</a>
+    </nav>
+  </nz-sider>
 
-  <nz-content class="app-content">
-    <div class="page-shell">
-      <router-outlet></router-outlet>
+  <nz-layout>
+    <nz-header class="app-header">
+      <div class="mobile-brand">
+        <div class="brand-title">Billing Invoice</div>
+        <div class="brand-subtitle">Facturation et encaissement</div>
+      </div>
+
+      <div class="nav-actions">
+        <span class="user-name">{{ username }}</span>
+        <button nz-button type="button" (click)="logout()">Deconnexion</button>
+      </div>
+    </nz-header>
+
+    <div class="mobile-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/factures" routerLinkActive="active">Factures</a>
+      <a routerLink="/test-paiement" routerLinkActive="active">Paiements</a>
+      <a routerLink="/creanciers" routerLinkActive="active">Creanciers</a>
+      <a routerLink="/points-de-vente" routerLinkActive="active">Points de vente</a>
     </div>
-  </nz-content>
+
+    <nz-content class="app-content">
+      <div class="page-shell">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+  </nz-layout>
 </nz-layout>

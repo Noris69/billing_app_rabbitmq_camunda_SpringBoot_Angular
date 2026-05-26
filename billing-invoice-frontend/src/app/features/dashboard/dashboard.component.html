@@ -1,0 +1,104 @@
+<div class="dashboard-heading">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Vue globale de la facturation, des paiements et du reseau d encaissement.</p>
+  </div>
+
+  <button nz-button type="button" (click)="loadDashboard()" [nzLoading]="loading">Actualiser</button>
+</div>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="warning"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<div class="loading-state" *ngIf="loading">
+  <nz-spin nzSimple></nz-spin>
+  <span>Chargement du dashboard...</span>
+</div>
+
+<ng-container *ngIf="!loading">
+  <section class="metric-grid">
+    <nz-card>
+      <span class="metric-label">Factures</span>
+      <strong>{{ totalInvoices | number }}</strong>
+      <small>{{ paidInvoices | number }} payees</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">En attente</span>
+      <strong>{{ pendingInvoices | number }}</strong>
+      <small>factures a suivre</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">Paiements</span>
+      <strong>{{ totalPayments | number }}</strong>
+      <small>{{ successfulPayments | number }} reussis dans les derniers resultats</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">Montant recent</span>
+      <strong>{{ totalAmount | number:'1.2-2' }}</strong>
+      <small>MAD sur les derniers paiements</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">Creanciers</span>
+      <strong>{{ totalCreanciers | number }}</strong>
+      <small>organismes references</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">Points de vente</span>
+      <strong>{{ totalPointsDeVente | number }}</strong>
+      <small>agences et distributeurs</small>
+    </nz-card>
+  </section>
+
+  <section class="quick-actions section-gap">
+    <a nz-button nzType="primary" routerLink="/test-paiement">Lancer un test paiement</a>
+    <a nz-button routerLink="/factures">Voir les factures</a>
+    <a nz-button routerLink="/creanciers/new">Nouveau creancier</a>
+    <a nz-button routerLink="/points-de-vente/new">Nouveau point de vente</a>
+  </section>
+
+  <section class="dashboard-grid">
+    <nz-card nzTitle="Dernieres factures">
+      <ng-container *ngIf="recentInvoices.length; else noInvoices">
+        <div class="activity-list">
+          <div class="activity-row" *ngFor="let invoice of recentInvoices">
+            <div>
+              <strong>{{ invoice.reference }}</strong>
+              <span>#{{ invoice.id }} - {{ invoice.createdDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <nz-tag [nzColor]="invoiceStatusColor(invoice.status)">{{ invoice.status || '-' }}</nz-tag>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noInvoices>
+        <nz-empty nzNotFoundContent="Aucune facture recente"></nz-empty>
+      </ng-template>
+    </nz-card>
+
+    <nz-card nzTitle="Derniers paiements">
+      <ng-container *ngIf="recentPayments.length; else noPayments">
+        <div class="activity-list">
+          <div class="activity-row" *ngFor="let payment of recentPayments">
+            <div>
+              <strong>{{ payment.transactionReference || ('PAY-' + payment.id) }}</strong>
+              <span>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }} - {{ payment.modeReglement || '-' }}</span>
+            </div>
+            <nz-tag [nzColor]="paymentStatusColor(payment.status)">{{ payment.status }}</nz-tag>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noPayments>
+        <nz-empty nzNotFoundContent="Aucun paiement recent"></nz-empty>
+      </ng-template>
+    </nz-card>
+  </section>
+</ng-container>

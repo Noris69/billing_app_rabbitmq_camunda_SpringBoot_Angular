@@ -10,6 +10,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -50,6 +51,7 @@ import { extractApiErrorMessage } from '../../core/utils/api-error.util';
 export class PointsDeVenteListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly pointDeVenteService = inject(PointDeVenteService);
+  private readonly message = inject(NzMessageService);
 
   readonly pointDeVenteTypes = POINT_DE_VENTE_TYPES;
 
@@ -127,6 +129,7 @@ export class PointsDeVenteListComponent implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage = `Le point de vente ${pointDeVente.nom} a ete supprime.`;
+          this.message.success(this.successMessage);
           this.search();
         },
         error: (error: unknown) => {
@@ -134,6 +137,7 @@ export class PointsDeVenteListComponent implements OnInit {
             error,
             'La suppression du point de vente a echoue.'
           );
+          this.message.error(this.errorMessage);
         }
       });
   }
@@ -159,12 +163,14 @@ export class PointsDeVenteListComponent implements OnInit {
           link.download = 'points-de-vente.pdf';
           link.click();
           window.URL.revokeObjectURL(url);
+          this.message.success('Export PDF genere.');
         },
         error: (error: unknown) => {
           this.errorMessage = extractApiErrorMessage(
             error,
             "L'export PDF des points de vente a echoue."
           );
+          this.message.error(this.errorMessage);
         }
       });
   }

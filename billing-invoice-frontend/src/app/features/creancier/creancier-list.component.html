@@ -93,18 +93,24 @@
   </div>
 
   <ng-container *ngIf="creanciers.length; else emptyState">
-    <nz-table [nzData]="creanciers" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+    <nz-table
+      [nzData]="creanciers"
+      [nzBordered]="true"
+      [nzFrontPagination]="false"
+      [nzScroll]="{ x: '1120px' }"
+      nzSize="middle"
+    >
       <thead>
         <tr>
           <th>ID</th>
           <th>Nom</th>
           <th>Type</th>
-          <th>ICE</th>
+          <th class="col-ice">ICE</th>
           <th>Banque</th>
           <th>RIB</th>
-          <th>Email</th>
+          <th class="col-email">Email</th>
           <th>Telephone</th>
-          <th>Date creation</th>
+          <th class="col-date">Date creation</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -114,12 +120,12 @@
           <td>#{{ data.id }}</td>
           <td><strong>{{ data.nom }}</strong></td>
           <td><nz-tag nzColor="blue">{{ data.typeCreancier }}</nz-tag></td>
-          <td>{{ data.ice }}</td>
+          <td class="col-ice">{{ data.ice }}</td>
           <td>{{ data.banque }}</td>
           <td><code>{{ data.rib }}</code></td>
-          <td>{{ data.email }}</td>
+          <td class="col-email">{{ data.email }}</td>
           <td>{{ data.telephone }}</td>
-          <td>{{ data.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="col-date">{{ data.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
           <td>
             <div class="action-group">
               <a nz-button nzSize="small" [routerLink]="['/creanciers', data.id, 'edit']">

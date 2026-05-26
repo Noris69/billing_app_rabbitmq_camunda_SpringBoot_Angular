@@ -1,0 +1,111 @@
+.detail-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.loading-state {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  gap: 10px;
+  padding: 24px 0;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.info-grid,
+.amount-grid {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.info-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+dt {
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+dd {
+  color: #0f172a;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.amount-grid dd {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.total {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+}
+
+.total dd {
+  color: #0f766e;
+  font-size: 24px;
+}
+
+.timeline {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline li {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 12px;
+}
+
+.timeline li.done {
+  border-color: #16a34a;
+}
+
+.timeline li.pending {
+  border-color: #f59e0b;
+}
+
+.timeline strong,
+.timeline span {
+  display: block;
+}
+
+.timeline span {
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .detail-header,
+  .detail-grid {
+    display: block;
+  }
+
+  .detail-grid nz-card + nz-card {
+    display: block;
+    margin-top: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

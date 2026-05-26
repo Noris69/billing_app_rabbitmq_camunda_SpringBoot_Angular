@@ -85,7 +85,13 @@
   </div>
 
   <ng-container *ngIf="pointsDeVente.length; else emptyState">
-    <nz-table [nzData]="pointsDeVente" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+    <nz-table
+      [nzData]="pointsDeVente"
+      [nzBordered]="true"
+      [nzFrontPagination]="false"
+      [nzScroll]="{ x: '960px' }"
+      nzSize="middle"
+    >
       <thead>
         <tr>
           <th>ID</th>

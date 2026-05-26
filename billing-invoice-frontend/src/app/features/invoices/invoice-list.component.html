@@ -50,7 +50,13 @@
   </div>
 
   <ng-container *ngIf="invoices.length; else emptyState">
-    <nz-table [nzData]="invoices" [nzBordered]="true" [nzFrontPagination]="false" nzSize="middle">
+    <nz-table
+      [nzData]="invoices"
+      [nzBordered]="true"
+      [nzFrontPagination]="false"
+      [nzScroll]="{ x: '1180px' }"
+      nzSize="middle"
+    >
       <thead>
         <tr>
           <th>ID</th>
@@ -63,7 +69,8 @@
           <th>TVA</th>
           <th>TTC</th>
           <th>Mode</th>
-          <th>Date creation</th>
+          <th class="col-date">Date creation</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
@@ -81,7 +88,10 @@
           <td>{{ invoice.montantTva | number:'1.2-2' }}</td>
           <td>{{ invoice.montantTtc | number:'1.2-2' }}</td>
           <td>{{ invoice.modeReglement }}</td>
-          <td>{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="col-date">{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <a nz-button nzSize="small" [routerLink]="['/factures', invoice.id]">Voir</a>
+          </td>
         </tr>
       </tbody>
     </nz-table>

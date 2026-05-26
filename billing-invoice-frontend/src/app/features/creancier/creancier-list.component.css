@@ -4,6 +4,11 @@
   flex-wrap: wrap;
 }
 
+.toolbar button,
+.toolbar a {
+  flex: 0 0 auto;
+}
+
 .action-group {
   display: flex;
   gap: 8px;
@@ -17,4 +22,27 @@
   justify-content: center;
   gap: 12px;
   color: #8c8c8c;
+}
+
+.col-ice {
+  min-width: 120px;
+}
+
+.col-email {
+  min-width: 180px;
+  max-width: 240px;
+}
+
+.col-date {
+  min-width: 130px;
+  max-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .toolbar button,
+  .toolbar a,
+  .action-group button,
+  .action-group a {
+    flex: 1 1 100%;
+  }
 }

@@ -27,9 +27,10 @@ body {
 
 .page-title {
   margin: 0 0 8px;
-  font-size: 28px;
+  font-size: clamp(22px, 4vw, 28px);
   font-weight: 700;
   color: #1f1f1f;
+  line-height: 1.2;
 }
 
 .page-subtitle {
@@ -40,4 +41,63 @@ body {
 
 .section-gap {
   margin-bottom: 16px;
+}
+
+.ant-card {
+  border-radius: 8px;
+}
+
+.ant-card-body {
+  min-width: 0;
+}
+
+.ant-table-wrapper {
+  width: 100%;
+}
+
+.ant-table-cell {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+.ant-table-thead .ant-table-cell {
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.ant-table-cell code,
+.ant-table-cell strong {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.ant-form-item {
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  .page-subtitle {
+    margin-bottom: 16px;
+  }
+
+  .ant-card-head {
+    padding: 0 12px;
+  }
+
+  .ant-card-body {
+    padding: 12px;
+  }
+
+  .ant-btn {
+    max-width: 100%;
+    white-space: normal;
+    height: auto;
+    min-height: 32px;
+  }
+
+  .ant-alert-message {
+    overflow-wrap: anywhere;
+  }
 }
