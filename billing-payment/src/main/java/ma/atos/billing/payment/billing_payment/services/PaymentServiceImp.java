@@ -43,6 +43,7 @@ public class PaymentServiceImp implements PaymentService {
         payment.setPointDeVenteId(request.pointDeVenteId());
         payment.setAmount(request.amount());
         payment.setOperationType(resolveModeReglement(request.modeReglement()).name());
+        payment.setStatus(resolveStatus(request).name());
 
         Payment savedPayment = repository.save(payment);
         PaymentDto dto = toDto(savedPayment);
@@ -84,6 +85,9 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private PaymentStatus resolveStatus(PaymentRequestDto request) {
+        if (request.paymentSuccess() != null) {
+            return request.paymentSuccess() ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
+        }
         return request.amount() != null && request.amount() > 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
     }
 
@@ -120,8 +124,8 @@ public class PaymentServiceImp implements PaymentService {
                 "MAD",
                 toModeReglement(payment.getOperationType()),
                 "PAY-" + payment.getId(),
-                payment.getAmount() != null && payment.getAmount() > 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED,
-                payment.getAmount() != null && payment.getAmount() > 0 ? null : "Paiement refuse par la simulation",
+                toPaymentStatus(payment.getStatus()),
+                toPaymentStatus(payment.getStatus()) == PaymentStatus.SUCCESS ? null : "Paiement refuse par la simulation",
                 toDateTime(payment.getCreatedDate(), payment.getDate()),
                 toDateTime(payment.getUpdatedDate(), payment.getDate())
         );
@@ -174,6 +178,18 @@ public class PaymentServiceImp implements PaymentService {
             return ModeReglement.valueOf(value);
         } catch (IllegalArgumentException ex) {
             return null;
+        }
+    }
+
+    private PaymentStatus toPaymentStatus(String value) {
+        if (!hasText(value)) {
+            return PaymentStatus.SUCCESS;
+        }
+
+        try {
+            return PaymentStatus.valueOf(value);
+        } catch (IllegalArgumentException ex) {
+            return PaymentStatus.SUCCESS;
         }
     }
 

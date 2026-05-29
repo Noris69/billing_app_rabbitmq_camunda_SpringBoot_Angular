@@ -71,7 +71,14 @@ public class CreateInvoiceDelegate implements JavaDelegate {
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
         execution.setVariable(InvoiceWorkflowVariables.INVOICE_ID, savedInvoice.getId());
-        paymentRequestedPublisher.publish(savedInvoice, customerId, creancier.getId(), pointDeVente.getId());
+        Object paymentSuccess = execution.getVariable(InvoiceWorkflowVariables.PAYMENT_SUCCESS);
+        paymentRequestedPublisher.publish(
+                savedInvoice,
+                customerId,
+                creancier.getId(),
+                pointDeVente.getId(),
+                paymentSuccess == null || Boolean.TRUE.equals(paymentSuccess)
+        );
     }
 
     private String requiredString(DelegateExecution execution, String variableName) {

@@ -48,6 +48,9 @@ public class Payment {
     @Column(name = "operation_type")
     private String operationType;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "pv_id")
     private Long pointDeVenteId;
 

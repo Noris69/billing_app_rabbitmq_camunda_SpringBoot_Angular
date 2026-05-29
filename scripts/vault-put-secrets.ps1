@@ -19,14 +19,14 @@ if ($missing.Count -gt 0) {
     Write-Error "Variables manquantes: $($missing -join ', ')"
     Write-Host ""
     Write-Host "Exemple:"
-    Write-Host '$env:DB_URL="jdbc:postgresql://host:5432/db"'
-    Write-Host '$env:DB_USERNAME="root"'
-    Write-Host '$env:DB_PASSWORD="***"'
+    Write-Host '$env:DB_URL="jdbc:postgresql://localhost:5432/billing"'
+    Write-Host '$env:DB_USERNAME="postgres"'
+    Write-Host '$env:DB_PASSWORD="<mot-de-passe-postgres>"'
     Write-Host '$env:KEYCLOAK_ISSUER_URI="http://localhost:8081/realms/billing"'
     Write-Host '$env:RABBITMQ_HOST="localhost"'
     Write-Host '$env:RABBITMQ_PORT="5672"'
     Write-Host '$env:RABBITMQ_USERNAME="guest"'
-    Write-Host '$env:RABBITMQ_PASSWORD="***"'
+    Write-Host '$env:RABBITMQ_PASSWORD="guest"'
     exit 1
 }
 

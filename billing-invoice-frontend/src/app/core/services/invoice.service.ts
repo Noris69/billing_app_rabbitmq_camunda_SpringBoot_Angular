@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Invoice, InvoicePage, InvoiceSearchParams } from '../models/invoice.model';
+import { CreateInvoicePayload, Invoice, InvoicePage, InvoiceSearchParams } from '../models/invoice.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,10 @@ export class InvoiceService {
 
   getInvoiceById(id: number): Observable<Invoice> {
     return this.http.get<Invoice>(`${this.apiUrl}/${id}`);
+  }
+
+  createInvoice(payload: CreateInvoicePayload): Observable<Invoice> {
+    return this.http.post<Invoice>(this.apiUrl, payload);
   }
 
   private toHttpParams(params: InvoiceSearchParams): HttpParams {

@@ -22,7 +22,7 @@ public class Invoice extends BusnessObject {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "global_seq")
     @SequenceGenerator(
             name = "global_seq",
-            sequenceName = "global_sequence",
+            sequenceName = "invoice.global_sequence",
             allocationSize = 1
     )
     private Long id;

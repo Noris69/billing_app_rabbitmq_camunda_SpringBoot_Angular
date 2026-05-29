@@ -18,15 +18,34 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { Creancier } from 'src/app/core/models/creancier.model';
 import { Customer } from 'src/app/core/models/customer.model';
+import { CreateInvoicePayload, InvoiceStatus } from 'src/app/core/models/invoice.model';
 import { InvoiceWorkflowResponse, ModeReglement, Payment } from 'src/app/core/models/payment.model';
 import { PointDeVente } from 'src/app/core/models/point-de-vente.model';
 import { CreancierService } from 'src/app/core/services/creancier.service';
 import { CustomerService } from 'src/app/core/services/customer.service';
+import { InvoiceService } from 'src/app/core/services/invoice.service';
 import { PaymentTestService } from 'src/app/core/services/payment-test.service';
 import { PointDeVenteService } from 'src/app/core/services/point-de-vente.service';
 import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
 
 type SortOrder = 'ascend' | 'descend' | null;
+type TargetInvoiceStatus = Extract<InvoiceStatus, 'EN_ATTENTE' | 'PAYEE' | 'REJECTED'>;
+
+interface PaymentTestFormValue {
+  reference: string | null;
+  dateInvoice: string | null;
+  dateDue: string | null;
+  montantHt: number | null;
+  montantTva: number | null;
+  montantTtc: number | null;
+  modeReglement: ModeReglement | null;
+  description: string | null;
+  customerId: number | null;
+  creancierId: number | null;
+  pointDeVenteId: number | null;
+  targetStatus: TargetInvoiceStatus | null;
+  paymentSuccess?: boolean | null;
+}
 
 @Component({
   selector: 'app-payment-test',
@@ -53,6 +72,7 @@ type SortOrder = 'ascend' | 'descend' | null;
 export class PaymentTestComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly paymentTestService = inject(PaymentTestService);
+  private readonly invoiceService = inject(InvoiceService);
   private readonly customerService = inject(CustomerService);
   private readonly creancierService = inject(CreancierService);
   private readonly pointDeVenteService = inject(PointDeVenteService);
@@ -61,6 +81,11 @@ export class PaymentTestComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly modeOptions: ModeReglement[] = ['ESPECES', 'CARTE'];
+  readonly invoiceStatusOptions: Array<{ label: string; value: TargetInvoiceStatus }> = [
+    { label: 'Payee', value: 'PAYEE' },
+    { label: 'En attente', value: 'EN_ATTENTE' },
+    { label: 'Rejetee', value: 'REJECTED' }
+  ];
 
   readonly form = this.fb.group({
     reference: [`INV-RMQ-${Date.now()}`, [Validators.required]],
@@ -74,6 +99,7 @@ export class PaymentTestComponent implements OnInit {
     customerId: [null as number | null, [Validators.required]],
     creancierId: [null as number | null, [Validators.required]],
     pointDeVenteId: [null as number | null, [Validators.required]],
+    targetStatus: ['PAYEE' as TargetInvoiceStatus, [Validators.required]],
     paymentSuccess: [true]
   });
 
@@ -116,13 +142,20 @@ export class PaymentTestComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
     this.errorMessage = '';
     this.successMessage = '';
     this.workflowResponse = null;
-    this.lastPaymentIdBeforeTest = this.latestPaymentId();
 
-    const payload = this.form.getRawValue();
+    const payload = this.form.getRawValue() as PaymentTestFormValue;
+    const targetStatus = payload.targetStatus ?? 'PAYEE';
+
+    if (targetStatus === 'EN_ATTENTE') {
+      this.createPendingInvoice(payload);
+      return;
+    }
+
+    this.loading = true;
+    this.lastPaymentIdBeforeTest = this.latestPaymentId();
     const customerId = Number(payload.customerId);
 
     this.paymentTestService
@@ -138,7 +171,7 @@ export class PaymentTestComponent implements OnInit {
         customerId,
         creancierId: Number(payload.creancierId ?? 0),
         pointDeVenteId: Number(payload.pointDeVenteId ?? 0),
-        paymentSuccess: payload.paymentSuccess ?? true
+        paymentSuccess: targetStatus === 'PAYEE'
       })
       .pipe(
         timeout(20000),
@@ -155,7 +188,10 @@ export class PaymentTestComponent implements OnInit {
           this.payments = payments;
           this.paymentTotalElements = Math.max(this.paymentTotalElements, payments.length);
           if (this.hasNewPaymentAfterTest()) {
-            this.successMessage = 'Facture envoyee et nouvelle transaction payment detectee.';
+            this.successMessage =
+              targetStatus === 'PAYEE'
+                ? 'Facture payee et nouvelle transaction payment detectee.'
+                : 'Facture rejetee et nouvelle transaction payment detectee.';
             this.message.success(this.successMessage);
           } else {
             this.errorMessage =
@@ -165,6 +201,44 @@ export class PaymentTestComponent implements OnInit {
         },
         error: (error: unknown) => {
           this.errorMessage = extractApiErrorMessage(error, 'Le test paiement a echoue.');
+          this.message.error(this.errorMessage);
+        }
+      });
+  }
+
+  private createPendingInvoice(payload: PaymentTestFormValue): void {
+    this.loading = true;
+
+    const invoice: CreateInvoicePayload = {
+      reference: payload.reference ?? `INV-RMQ-${Date.now()}`,
+      dateInvoice: payload.dateInvoice,
+      dateDue: payload.dateDue,
+      montantHt: Number(payload.montantHt ?? 0),
+      montantTva: Number(payload.montantTva ?? 0),
+      montantTtc: Number(payload.montantTtc ?? 0),
+      modeReglement: payload.modeReglement,
+      description: payload.description,
+      customerId: Number(payload.customerId ?? 0),
+      creancierId: Number(payload.creancierId ?? 0),
+      pointDeVenteId: Number(payload.pointDeVenteId ?? 0),
+      status: 'EN_ATTENTE'
+    };
+
+    this.invoiceService
+      .createInvoice(invoice)
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (createdInvoice) => {
+          this.successMessage = `Facture en attente creee (#${createdInvoice.id}).`;
+          this.message.success(this.successMessage);
+        },
+        error: (error: unknown) => {
+          this.errorMessage = extractApiErrorMessage(error, 'Impossible de creer la facture en attente.');
           this.message.error(this.errorMessage);
         }
       });

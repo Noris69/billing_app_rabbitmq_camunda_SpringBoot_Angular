@@ -1,29 +1,36 @@
 
-CREATE TABLE IF NOT EXISTS invoice.costumer (
-    id BIGINT PRIMARY KEY DEFAULT nextval('global_sequence'),
+CREATE SEQUENCE IF NOT EXISTS invoice.global_sequence START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE IF NOT EXISTS invoice.customer (
+    id BIGINT PRIMARY KEY DEFAULT nextval('invoice.global_sequence'),
     nom VARCHAR(255),
     prenom VARCHAR(255),
     cin VARCHAR(255),
     email VARCHAR(255),
     telephone VARCHAR(255),
     adresse VARCHAR(255),
-    ville VARCHAR(255)
+    ville VARCHAR(255),
+    created_date TIMESTAMP,
+    updated_date TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS invoice.creancier (
-    id BIGINT PRIMARY KEY DEFAULT nextval('global_sequence'),
+    id BIGINT PRIMARY KEY DEFAULT nextval('invoice.global_sequence'),
     nom VARCHAR(255),
+    type_creancier VARCHAR(255),
     ice VARCHAR(255),
     rc VARCHAR(255),
     rib VARCHAR(255),
     banque VARCHAR(255),
     email VARCHAR(255),
     telephone VARCHAR(255),
-    adresse VARCHAR(255)
+    adresse VARCHAR(255),
+    created_date TIMESTAMP,
+    updated_date TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS invoice.point_de_vente (
-    id BIGINT PRIMARY KEY DEFAULT nextval('global_sequence'),
+    id BIGINT PRIMARY KEY DEFAULT nextval('invoice.global_sequence'),
     type_point_de_vente VARCHAR(31) NOT NULL,
     nom VARCHAR(255),
     adresse VARCHAR(255),
@@ -37,11 +44,13 @@ CREATE TABLE IF NOT EXISTS invoice.point_de_vente (
     code_distributeur VARCHAR(255),
     zone_distribution VARCHAR(255),
     nom_commercial VARCHAR(255),
-    commission DOUBLE PRECISION
+    commission DOUBLE PRECISION,
+    created_date TIMESTAMP,
+    updated_date TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS invoice.invoice (
-    id BIGINT PRIMARY KEY DEFAULT nextval('global_sequence'),
+    id BIGINT PRIMARY KEY DEFAULT nextval('invoice.global_sequence'),
     reference VARCHAR(255),
     date_invoice DATE,
     date_due DATE,
@@ -49,15 +58,18 @@ CREATE TABLE IF NOT EXISTS invoice.invoice (
     montant_tva DOUBLE PRECISION,
     montant_ttc DOUBLE PRECISION,
     status VARCHAR(255),
+    mode_reglement VARCHAR(255),
     description TEXT,
 
-    costumer_id BIGINT,
+    customer_id BIGINT,
     creancier_id BIGINT,
     point_de_vente_id BIGINT,
+    created_date TIMESTAMP,
+    updated_date TIMESTAMP,
 
-    CONSTRAINT fk_invoice_costumer
-        FOREIGN KEY (costumer_id)
-        REFERENCES invoice.costumer(id),
+    CONSTRAINT fk_invoice_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES invoice.customer(id),
 
     CONSTRAINT fk_invoice_creancier
         FOREIGN KEY (creancier_id)

@@ -14,6 +14,7 @@ public record PaymentRequestedEvent(
         Double amount,
         String currency,
         String modeReglement,
-        String description
+        String description,
+        Boolean paymentSuccess
 ) {
 }

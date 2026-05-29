@@ -65,11 +65,14 @@
 
       <nz-col [nzXs]="24" [nzMd]="4">
         <nz-form-item>
-          <nz-form-label>Succes</nz-form-label>
+          <nz-form-label nzRequired>Statut facture</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="paymentSuccess">
-              <nz-option nzLabel="Oui" [nzValue]="true"></nz-option>
-              <nz-option nzLabel="Non" [nzValue]="false"></nz-option>
+            <nz-select formControlName="targetStatus">
+              <nz-option
+                *ngFor="let status of invoiceStatusOptions"
+                [nzLabel]="status.label"
+                [nzValue]="status.value"
+              ></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>

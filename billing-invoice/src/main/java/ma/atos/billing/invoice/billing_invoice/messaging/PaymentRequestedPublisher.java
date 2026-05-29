@@ -30,11 +30,12 @@ public class PaymentRequestedPublisher {
                 invoice,
                 invoice.getCustomer() != null ? invoice.getCustomer().getId() : null,
                 invoice.getCreancier() != null ? invoice.getCreancier().getId() : null,
-                invoice.getPointDeVente() != null ? invoice.getPointDeVente().getId() : null
+                invoice.getPointDeVente() != null ? invoice.getPointDeVente().getId() : null,
+                true
         );
     }
 
-    public void publish(Invoice invoice, Long customerId, Long creancierId, Long pointDeVenteId) {
+    public void publish(Invoice invoice, Long customerId, Long creancierId, Long pointDeVenteId, Boolean paymentSuccess) {
         PaymentRequestedEvent event = new PaymentRequestedEvent(
                 UUID.randomUUID().toString(),
                 "PaymentRequested",
@@ -47,7 +48,8 @@ public class PaymentRequestedPublisher {
                 invoice.getMontantTtc(),
                 "MAD",
                 invoice.getModeReglement(),
-                invoice.getDescription()
+                invoice.getDescription(),
+                paymentSuccess
         );
 
         rabbitTemplate.convertAndSend(exchange, routingKey, event);

@@ -1,12 +1,19 @@
 package ma.atos.billing.invoice.billing_invoice.controllers;
 
 import ma.atos.billing.invoice.billing_invoice.dtos.InvoiceDto;
+import ma.atos.billing.invoice.billing_invoice.entities.Creancier;
+import ma.atos.billing.invoice.billing_invoice.entities.Customer;
 import ma.atos.billing.invoice.billing_invoice.entities.Invoice;
+import ma.atos.billing.invoice.billing_invoice.entities.PointDeVente;
 import ma.atos.billing.invoice.billing_invoice.enums.StatusInvoice;
 import ma.atos.billing.invoice.billing_invoice.mappers.InvoiceMapper;
+import ma.atos.billing.invoice.billing_invoice.repository.CreancierRepository;
+import ma.atos.billing.invoice.billing_invoice.repository.CustomerRepository;
 import ma.atos.billing.invoice.billing_invoice.repository.InvoiceRepository;
+import ma.atos.billing.invoice.billing_invoice.repository.PointDeVenteRepository;
 import ma.atos.billing.invoice.billing_invoice.services.InvoiceNotificationService;
 import ma.atos.billing.invoice.billing_invoice.services.InvoiceReportService;
+import jakarta.validation.Valid;
 import net.sf.jasperreports.engine.JRException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,17 +39,26 @@ public class InvoiceController {
     private final InvoiceMapper mapper;
     private final InvoiceNotificationService notificationService;
     private final InvoiceReportService reportService;
+    private final CustomerRepository customerRepository;
+    private final CreancierRepository creancierRepository;
+    private final PointDeVenteRepository pointDeVenteRepository;
 
     public InvoiceController(
             InvoiceRepository repository,
             InvoiceMapper mapper,
             InvoiceNotificationService notificationService,
-            InvoiceReportService reportService
+            InvoiceReportService reportService,
+            CustomerRepository customerRepository,
+            CreancierRepository creancierRepository,
+            PointDeVenteRepository pointDeVenteRepository
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.notificationService = notificationService;
         this.reportService = reportService;
+        this.customerRepository = customerRepository;
+        this.creancierRepository = creancierRepository;
+        this.pointDeVenteRepository = pointDeVenteRepository;
     }
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -50,10 +68,37 @@ public class InvoiceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<InvoiceDto> getById(@PathVariable Long id) {
+        return findInvoiceById(id);
+    }
+
+    @GetMapping("/get-by-id/{id}")
+    public ResponseEntity<InvoiceDto> getByIdAlias(@PathVariable Long id) {
+        return findInvoiceById(id);
+    }
+
+    private ResponseEntity<InvoiceDto> findInvoiceById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<InvoiceDto> create(@Valid @RequestBody InvoiceDto dto) {
+        Customer customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        Creancier creancier = creancierRepository.findById(dto.getCreancierId())
+                .orElseThrow(() -> new IllegalArgumentException("Creancier introuvable : " + dto.getCreancierId()));
+        PointDeVente pointDeVente = pointDeVenteRepository.findById(dto.getPointDeVenteId())
+                .orElseThrow(() -> new IllegalArgumentException("Point de vente introuvable : " + dto.getPointDeVenteId()));
+
+        if (dto.getStatus() == null) {
+            dto.setStatus(StatusInvoice.EN_ATTENTE);
+        }
+
+        Invoice savedInvoice = repository.save(mapper.toEntity(dto, customer, creancier, pointDeVente));
+        InvoiceDto savedDto = mapper.toDto(savedInvoice);
+        notificationService.notifyInvoiceChange(savedDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedDto);
     }
 
     @GetMapping("/{id}/export/pdf")

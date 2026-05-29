@@ -13,6 +13,7 @@ public record PaymentRequestDto(
         @NotNull @Positive Double amount,
         String currency,
         ModeReglement modeReglement,
-        String description
+        String description,
+        Boolean paymentSuccess
 ) {
 }

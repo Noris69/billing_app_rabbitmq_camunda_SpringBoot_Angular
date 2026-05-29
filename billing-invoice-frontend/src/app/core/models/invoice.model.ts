@@ -21,6 +21,8 @@ export interface Invoice {
   updatedDate?: string | number | Date | null;
 }
 
+export type CreateInvoicePayload = Omit<Invoice, 'id' | 'createdDate' | 'updatedDate'>;
+
 export interface InvoiceSearchParams {
   page?: number;
   size?: number;

@@ -22,7 +22,7 @@ public class MarkInvoicePendingDelegate implements JavaDelegate {
         Long invoiceId = ((Number) execution.getVariable(InvoiceWorkflowVariables.INVOICE_ID)).longValue();
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new IllegalArgumentException("Facture introuvable : " + invoiceId));
-        invoice.setStatus(StatusInvoice.EN_ATTENTE);
+        invoice.setStatus(StatusInvoice.REJECTED);
         invoiceRepository.save(invoice);
     }
 }

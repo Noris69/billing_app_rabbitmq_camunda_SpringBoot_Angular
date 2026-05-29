@@ -15,9 +15,9 @@ Vault dev est expose sur `http://localhost:8200` avec le token dev `root`.
 Definir les variables localement, puis executer le script:
 
 ```powershell
-$env:DB_URL="jdbc:postgresql://host:5432/db"
-$env:DB_USERNAME="root"
-$env:DB_PASSWORD="mot-de-passe"
+$env:DB_URL="jdbc:postgresql://localhost:5432/billing"
+$env:DB_USERNAME="postgres"
+$env:DB_PASSWORD="<mot-de-passe-postgres>"
 $env:KEYCLOAK_ISSUER_URI="http://localhost:8081/realms/billing"
 $env:RABBITMQ_HOST="localhost"
 $env:RABBITMQ_PORT="5672"
@@ -28,6 +28,8 @@ $env:RABBITMQ_PASSWORD="guest"
 ```
 
 Les valeurs sont stockees dans `secret/application`, lues par `billing-customer`, `billing-invoice` et `billing-payment`.
+
+Si un service affiche `password authentication failed for user "root"`, cela veut dire que Vault ou les variables d'environnement contiennent encore un ancien `DB_USERNAME=root`. Recharge les secrets avec le vrai user PostgreSQL, puis redemarre le service.
 
 ## Demarrer les services
 

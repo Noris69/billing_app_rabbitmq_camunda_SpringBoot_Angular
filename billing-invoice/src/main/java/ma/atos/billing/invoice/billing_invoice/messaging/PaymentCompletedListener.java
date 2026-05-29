@@ -36,7 +36,7 @@ public class PaymentCompletedListener {
         if ("SUCCESS".equalsIgnoreCase(event.status())) {
             invoice.setStatus(StatusInvoice.PAYEE);
         } else {
-            invoice.setStatus(StatusInvoice.EN_ATTENTE);
+            invoice.setStatus(StatusInvoice.REJECTED);
         }
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
