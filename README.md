@@ -197,6 +197,42 @@ Chemin Vault utilise :
 secret/application
 ```
 
+### Secrets Docker Compose
+
+Les secrets ne sont plus ecrits en clair dans `docker-compose.yml`.
+
+Le compose lit maintenant les valeurs depuis des variables d'environnement ou depuis un fichier `.env` local non versionne.
+
+Fichier modele :
+
+```text
+.env.example
+```
+
+Creation locale :
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Puis remplacer les valeurs `change_me` dans `.env`.
+
+Variables attendues :
+
+```text
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+RABBITMQ_DEFAULT_USER
+RABBITMQ_DEFAULT_PASS
+VAULT_DEV_ROOT_TOKEN_ID
+KEYCLOAK_ADMIN
+KEYCLOAK_ADMIN_PASSWORD
+KEYCLOAK_ISSUER_URI
+```
+
+Le fichier `.env` est ignore par Git. Seul `.env.example` doit etre versionne.
+
 ### Frontend responsive
 
 Le frontend Angular a ete ameliore pour mieux fonctionner sur desktop et mobile :

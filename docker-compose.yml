@@ -3,15 +3,15 @@ services:
     image: postgres:17
     container_name: billing-postgres
     environment:
-      POSTGRES_DB: db_formation
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: moimoimm1
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d db_formation"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?POSTGRES_USER is required} -d ${POSTGRES_DB:?POSTGRES_DB is required}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -20,8 +20,8 @@ services:
     image: rabbitmq:3.13-management
     container_name: billing-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?RABBITMQ_DEFAULT_USER is required}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS is required}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -37,7 +37,7 @@ services:
     ports:
       - "8200:8200"
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
     cap_add:
       - IPC_LOCK
@@ -56,39 +56,39 @@ services:
         condition: service_healthy
     environment:
       VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: root
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
     entrypoint: /bin/sh
     command:
       - -c
       - |
         vault kv put secret/billing-customer \
-          DB_URL='jdbc:postgresql://postgres:5432/db_formation' \
-          DB_USERNAME='root' \
-          DB_PASSWORD='moimoimm1' \
-          KEYCLOAK_ISSUER_URI='http://localhost:8081/realms/billing'
+          DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
+          DB_USERNAME='${POSTGRES_USER:?POSTGRES_USER is required}' \
+          DB_PASSWORD='${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}' \
+          KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/billing-invoice \
-          DB_URL='jdbc:postgresql://postgres:5432/db_formation' \
-          DB_USERNAME='root' \
-          DB_PASSWORD='moimoimm1' \
+          DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
+          DB_USERNAME='${POSTGRES_USER:?POSTGRES_USER is required}' \
+          DB_PASSWORD='${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}' \
           RABBITMQ_HOST='rabbitmq' \
           RABBITMQ_PORT='5672' \
-          RABBITMQ_USERNAME='guest' \
-          RABBITMQ_PASSWORD='guest' \
-          KEYCLOAK_ISSUER_URI='http://localhost:8081/realms/billing'
+          RABBITMQ_USERNAME='${RABBITMQ_DEFAULT_USER:?RABBITMQ_DEFAULT_USER is required}' \
+          RABBITMQ_PASSWORD='${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS is required}' \
+          KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/billing-payment \
-          DB_URL='jdbc:postgresql://postgres:5432/db_formation' \
-          DB_USERNAME='root' \
-          DB_PASSWORD='moimoimm1' \
+          DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
+          DB_USERNAME='${POSTGRES_USER:?POSTGRES_USER is required}' \
+          DB_PASSWORD='${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}' \
           RABBITMQ_HOST='rabbitmq' \
           RABBITMQ_PORT='5672' \
-          RABBITMQ_USERNAME='guest' \
-          RABBITMQ_PASSWORD='guest' \
-          KEYCLOAK_ISSUER_URI='http://localhost:8081/realms/billing'
+          RABBITMQ_USERNAME='${RABBITMQ_DEFAULT_USER:?RABBITMQ_DEFAULT_USER is required}' \
+          RABBITMQ_PASSWORD='${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS is required}' \
+          KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/api-gateway \
           BILLING_CUSTOMER_URI='http://billing-customer:8083' \
           BILLING_INVOICE_URI='http://billing-invoice:8080' \
           BILLING_PAYMENT_URI='http://billing-payment:8082' \
-          KEYCLOAK_ISSUER_URI='http://localhost:8081/realms/billing'
+          KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -97,12 +97,12 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:?KEYCLOAK_ADMIN is required}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD is required}
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/db_formation
-      KC_DB_USERNAME: root
-      KC_DB_PASSWORD: moimoimm1
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      KC_DB_USERNAME: ${POSTGRES_USER:?POSTGRES_USER is required}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
     command: ["start-dev", "--import-realm"]
@@ -129,7 +129,7 @@ services:
         condition: service_completed_successfully
     environment:
       VAULT_URI: http://vault:8200
-      VAULT_TOKEN: root
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/billing/protocol/openid-connect/certs
     ports:
       - "8083:8083"
@@ -149,7 +149,7 @@ services:
         condition: service_completed_successfully
     environment:
       VAULT_URI: http://vault:8200
-      VAULT_TOKEN: root
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/billing/protocol/openid-connect/certs
     ports:
       - "8080:8080"
@@ -169,7 +169,7 @@ services:
         condition: service_completed_successfully
     environment:
       VAULT_URI: http://vault:8200
-      VAULT_TOKEN: root
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/billing/protocol/openid-connect/certs
     ports:
       - "8082:8082"
@@ -191,7 +191,7 @@ services:
         condition: service_completed_successfully
     environment:
       VAULT_URI: http://vault:8200
-      VAULT_TOKEN: root
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/billing/protocol/openid-connect/certs
     ports:
       - "8085:8085"
