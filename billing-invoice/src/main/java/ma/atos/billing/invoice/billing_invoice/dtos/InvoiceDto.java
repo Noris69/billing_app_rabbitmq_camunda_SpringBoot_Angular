@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import ma.atos.billing.invoice.billing_invoice.enums.ModeReglement;
 import ma.atos.billing.invoice.billing_invoice.enums.StatusInvoice;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -27,13 +28,13 @@ public class InvoiceDto {
     private LocalDate dateDue;
 
     @PositiveOrZero
-    private Double montantHt;
+    private BigDecimal montantHt;
 
     @PositiveOrZero
-    private Double montantTva;
+    private BigDecimal montantTva;
 
     @PositiveOrZero
-    private Double montantTtc;
+    private BigDecimal montantTtc;
 
     private StatusInvoice status;
 

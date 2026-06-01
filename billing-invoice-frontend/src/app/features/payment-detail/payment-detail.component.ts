@@ -43,6 +43,7 @@ export class PaymentDetailComponent implements OnInit {
   attempts: Payment[] = [];
   loading = false;
   retrying = false;
+  closing = false;
   errorMessage = '';
 
   ngOnInit(): void {
@@ -104,8 +105,7 @@ export class PaymentDetailComponent implements OnInit {
       )
       .subscribe({
         next: (payment) => {
-          this.message.success('Paiement relance avec succes.');
-          this.payment = payment;
+          this.message.success('Nouvelle tentative de paiement en attente.');
           this.router.navigate(['/paiements', payment.id]);
         },
         error: (error: unknown) => {
@@ -115,8 +115,20 @@ export class PaymentDetailComponent implements OnInit {
       });
   }
 
+  markSuccess(): void {
+    this.closePayment('success');
+  }
+
+  markFailed(): void {
+    this.closePayment('failed');
+  }
+
   canRetry(payment: Payment | null): boolean {
-    return payment?.status === 'FAILED' || payment?.status === 'CANCELLED' || payment?.status === 'PENDING';
+    return payment?.status === 'FAILED' || payment?.status === 'CANCELLED';
+  }
+
+  canClose(payment: Payment | null): boolean {
+    return payment?.status === 'PENDING';
   }
 
   statusColor(status: string | null | undefined): string {
@@ -127,5 +139,37 @@ export class PaymentDetailComponent implements OnInit {
       return 'red';
     }
     return 'gold';
+  }
+
+  private closePayment(result: 'success' | 'failed'): void {
+    if (!this.payment || !this.canClose(this.payment)) {
+      return;
+    }
+
+    this.closing = true;
+    this.errorMessage = '';
+    const request =
+      result === 'success'
+        ? this.paymentService.markPaymentSuccess(this.payment.id)
+        : this.paymentService.markPaymentFailed(this.payment.id);
+
+    request
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.closing = false;
+        })
+      )
+      .subscribe({
+        next: (payment) => {
+          this.payment = payment;
+          this.loadPayment(payment.id);
+          this.message.success(result === 'success' ? 'Paiement marque reussi.' : 'Paiement marque echoue.');
+        },
+        error: (error: unknown) => {
+          this.errorMessage = extractApiErrorMessage(error, 'Impossible de cloturer ce paiement.');
+          this.message.error(this.errorMessage);
+        }
+      });
   }
 }

@@ -1,5 +1,6 @@
 package ma.atos.billing.payment.billing_payment.messaging;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentRequestedEvent(
@@ -11,7 +12,7 @@ public record PaymentRequestedEvent(
         Long customerId,
         Long creancierId,
         Long pointDeVenteId,
-        Double amount,
+        BigDecimal amount,
         String currency,
         String modeReglement,
         String description,

@@ -1,13 +1,16 @@
 package ma.atos.billing.payment.billing_payment.messaging;
 
 import ma.atos.billing.payment.billing_payment.dtos.PaymentRequestDto;
+import ma.atos.billing.payment.billing_payment.entities.ProcessedMessage;
 import ma.atos.billing.payment.billing_payment.enums.ModeReglement;
+import ma.atos.billing.payment.billing_payment.repositories.ProcessedMessageRepository;
 import ma.atos.billing.payment.billing_payment.services.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class PaymentRequestedListener {
@@ -15,14 +18,26 @@ public class PaymentRequestedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentRequestedListener.class);
 
     private final PaymentService paymentService;
+    private final ProcessedMessageRepository processedMessageRepository;
 
-    public PaymentRequestedListener(PaymentService paymentService) {
+    public PaymentRequestedListener(
+            PaymentService paymentService,
+            ProcessedMessageRepository processedMessageRepository
+    ) {
         this.paymentService = paymentService;
+        this.processedMessageRepository = processedMessageRepository;
     }
 
+    @Transactional
     @RabbitListener(queues = "${billing.rabbitmq.payment-requested-queue}")
     public void onPaymentRequested(PaymentRequestedEvent event) {
+        if (isDuplicate(event.eventId())) {
+            LOGGER.info("Message paiement deja traite ignore. eventId={}", event.eventId());
+            return;
+        }
+
         try {
+            markAsProcessed(event.eventId(), event.eventType());
             paymentService.createPayment(new PaymentRequestDto(
                     event.invoiceId(),
                     event.invoiceReference(),
@@ -65,5 +80,17 @@ public class PaymentRequestedListener {
         }
 
         return ModeReglement.valueOf(value);
+    }
+
+    private boolean isDuplicate(String eventId) {
+        return eventId != null
+                && !eventId.isBlank()
+                && processedMessageRepository.existsById(eventId);
+    }
+
+    private void markAsProcessed(String eventId, String eventType) {
+        if (eventId != null && !eventId.isBlank()) {
+            processedMessageRepository.save(new ProcessedMessage(eventId, eventType));
+        }
     }
 }

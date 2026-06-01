@@ -16,6 +16,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component("createInvoiceDelegate")
@@ -59,15 +60,16 @@ public class CreateInvoiceDelegate implements JavaDelegate {
         invoice.setReference(requiredString(execution, InvoiceWorkflowVariables.REFERENCE));
         invoice.setDateInvoice(optionalDate(execution, InvoiceWorkflowVariables.DATE_INVOICE));
         invoice.setDateDue(optionalDate(execution, InvoiceWorkflowVariables.DATE_DUE));
-        invoice.setMontantHt(optionalDouble(execution, InvoiceWorkflowVariables.MONTANT_HT));
-        invoice.setMontantTva(optionalDouble(execution, InvoiceWorkflowVariables.MONTANT_TVA));
-        invoice.setMontantTtc(requiredDouble(execution, InvoiceWorkflowVariables.MONTANT_TTC));
+        invoice.setMontantHt(optionalBigDecimal(execution, InvoiceWorkflowVariables.MONTANT_HT));
+        invoice.setMontantTva(optionalBigDecimal(execution, InvoiceWorkflowVariables.MONTANT_TVA));
+        invoice.setMontantTtc(requiredBigDecimal(execution, InvoiceWorkflowVariables.MONTANT_TTC));
         invoice.setModeReglement(optionalModeReglement(execution));
         invoice.setDescription((String) execution.getVariable(InvoiceWorkflowVariables.DESCRIPTION));
         invoice.setStatus(StatusInvoice.EN_ATTENTE);
         invoice.setCustomer(customer);
         invoice.setCreancier(creancier);
         invoice.setPointDeVente(pointDeVente);
+        validateBusinessRules(invoice);
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
         execution.setVariable(InvoiceWorkflowVariables.INVOICE_ID, savedInvoice.getId());
@@ -100,20 +102,23 @@ public class CreateInvoiceDelegate implements JavaDelegate {
         throw new IllegalArgumentException("Variable obligatoire manquante : " + variableName);
     }
 
-    private Double requiredDouble(DelegateExecution execution, String variableName) {
-        Double value = optionalDouble(execution, variableName);
+    private BigDecimal requiredBigDecimal(DelegateExecution execution, String variableName) {
+        BigDecimal value = optionalBigDecimal(execution, variableName);
         if (value == null) {
             throw new IllegalArgumentException("Variable obligatoire manquante : " + variableName);
         }
         return value;
     }
 
-    private Double optionalDouble(DelegateExecution execution, String variableName) {
+    private BigDecimal optionalBigDecimal(DelegateExecution execution, String variableName) {
         Object value = execution.getVariable(variableName);
-        if (value instanceof Number number) {
-            return number.doubleValue();
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal;
         }
-        return value != null ? Double.valueOf(value.toString()) : null;
+        if (value instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
+        }
+        return value != null ? new BigDecimal(value.toString()) : null;
     }
 
     private LocalDate optionalDate(DelegateExecution execution, String variableName) {
@@ -124,5 +129,24 @@ public class CreateInvoiceDelegate implements JavaDelegate {
     private ModeReglement optionalModeReglement(DelegateExecution execution) {
         Object value = execution.getVariable(InvoiceWorkflowVariables.MODE_REGLEMENT);
         return value != null ? ModeReglement.valueOf(value.toString()) : null;
+    }
+
+    private void validateBusinessRules(Invoice invoice) {
+        if (invoice.getDateInvoice() != null
+                && invoice.getDateDue() != null
+                && invoice.getDateDue().isBefore(invoice.getDateInvoice())) {
+            throw new IllegalArgumentException("La date d'echeance doit etre superieure ou egale a la date de facture.");
+        }
+
+        BigDecimal montantHt = amountOrZero(invoice.getMontantHt());
+        BigDecimal montantTva = amountOrZero(invoice.getMontantTva());
+        if (invoice.getMontantTtc() != null
+                && montantHt.add(montantTva).compareTo(invoice.getMontantTtc()) != 0) {
+            throw new IllegalArgumentException("Le montant TTC doit etre egal au montant HT plus TVA.");
+        }
+    }
+
+    private BigDecimal amountOrZero(BigDecimal amount) {
+        return amount != null ? amount : BigDecimal.ZERO;
     }
 }

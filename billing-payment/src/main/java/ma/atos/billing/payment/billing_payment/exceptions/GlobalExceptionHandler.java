@@ -1,4 +1,4 @@
-package ma.atos.billing.invoice.billing_invoice.exception;
+package ma.atos.billing.payment.billing_payment.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -14,21 +14,6 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(FunctionalException.class)
-    public ResponseEntity<ApiError> handleFunctionalException(
-            FunctionalException ex,
-            HttpServletRequest request
-    ) {
-        ApiError error = buildError(
-                ex.getStatus(),
-                ex.getMessage(),
-                request.getRequestURI(),
-                null
-        );
-
-        return ResponseEntity.status(ex.getStatus()).body(error);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             MethodArgumentNotValidException ex,
@@ -40,14 +25,12 @@ public class GlobalExceptionHandler {
                 .map(this::buildValidationMessage)
                 .toList();
 
-        ApiError error = buildError(
+        return ResponseEntity.badRequest().body(buildError(
                 HttpStatus.BAD_REQUEST,
                 "Parametres invalides",
                 request.getRequestURI(),
                 details
-        );
-
-        return ResponseEntity.badRequest().body(error);
+        ));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -55,29 +38,12 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex,
             HttpServletRequest request
     ) {
-        ApiError error = buildError(
+        return ResponseEntity.badRequest().body(buildError(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
                 request.getRequestURI(),
                 null
-        );
-
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(TechnicalException.class)
-    public ResponseEntity<ApiError> handleTechnicalException(
-            TechnicalException ex,
-            HttpServletRequest request
-    ) {
-        ApiError error = buildError(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                ex.getMessage(),
-                request.getRequestURI(),
-                null
-        );
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        ));
     }
 
     private ApiError buildError(HttpStatus status, String message, String path, List<String> details) {

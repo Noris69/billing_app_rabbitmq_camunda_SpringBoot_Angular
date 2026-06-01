@@ -43,6 +43,14 @@ export class PaymentTestService {
     return this.http.post<Payment>(`/payment-api/payments/${id}/retry`, {});
   }
 
+  markPaymentSuccess(id: number): Observable<Payment> {
+    return this.http.post<Payment>(`/payment-api/payments/${id}/mark-success`, {});
+  }
+
+  markPaymentFailed(id: number): Observable<Payment> {
+    return this.http.post<Payment>(`/payment-api/payments/${id}/mark-failed`, {});
+  }
+
   getPaymentAttempts(id: number): Observable<Payment[]> {
     return this.http.get<Payment[]>(`/payment-api/payments/${id}/attempts`);
   }

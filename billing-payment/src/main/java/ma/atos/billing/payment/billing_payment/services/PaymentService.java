@@ -16,6 +16,10 @@ public interface PaymentService {
 
     PaymentDto retryPayment(Long id);
 
+    PaymentDto markSuccess(Long id);
+
+    PaymentDto markFailed(Long id);
+
     List<PaymentDto> findAttempts(Long id);
 
     PaymentDashboardDto dashboard();

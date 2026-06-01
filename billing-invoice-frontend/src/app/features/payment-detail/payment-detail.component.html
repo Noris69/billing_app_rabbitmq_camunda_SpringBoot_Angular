@@ -19,6 +19,30 @@
     >
       Retry paiement
     </button>
+    <button
+      *ngIf="canClose(payment)"
+      nz-button
+      nzType="primary"
+      type="button"
+      nz-popconfirm
+      nzPopconfirmTitle="Confirmer la reussite de ce paiement ?"
+      [nzLoading]="closing"
+      (nzOnConfirm)="markSuccess()"
+    >
+      Marquer reussi
+    </button>
+    <button
+      *ngIf="canClose(payment)"
+      nz-button
+      nzDanger
+      type="button"
+      nz-popconfirm
+      nzPopconfirmTitle="Confirmer l'echec de ce paiement ?"
+      [nzLoading]="closing"
+      (nzOnConfirm)="markFailed()"
+    >
+      Marquer echoue
+    </button>
   </div>
 </div>
 

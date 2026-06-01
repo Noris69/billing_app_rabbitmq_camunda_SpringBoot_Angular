@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import ma.atos.billing.invoice.billing_invoice.enums.ModeReglement;
 import ma.atos.billing.invoice.billing_invoice.enums.StatusInvoice;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -34,11 +35,14 @@ public class Invoice extends BusnessObject {
 
     private LocalDate dateDue;
 
-    private Double montantHt;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal montantHt;
 
-    private Double montantTva;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal montantTva;
 
-    private Double montantTtc;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal montantTtc;
 
     @Enumerated(EnumType.STRING)
     private StatusInvoice status;

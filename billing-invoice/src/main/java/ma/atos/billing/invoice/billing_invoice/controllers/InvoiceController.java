@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/invoices")
 public class InvoiceController {
@@ -94,6 +96,7 @@ public class InvoiceController {
         if (dto.getStatus() == null) {
             dto.setStatus(StatusInvoice.EN_ATTENTE);
         }
+        validateBusinessRules(dto);
 
         Invoice savedInvoice = repository.save(mapper.toEntity(dto, customer, creancier, pointDeVente));
         InvoiceDto savedDto = mapper.toDto(savedInvoice);
@@ -163,5 +166,24 @@ public class InvoiceController {
             case "reference", "status", "montantHt", "montantTva", "montantTtc", "modeReglement", "createdDate", "dateInvoice", "dateDue" -> sortBy;
             default -> "id";
         };
+    }
+
+    private void validateBusinessRules(InvoiceDto dto) {
+        if (dto.getDateInvoice() != null
+                && dto.getDateDue() != null
+                && dto.getDateDue().isBefore(dto.getDateInvoice())) {
+            throw new IllegalArgumentException("La date d'echeance doit etre superieure ou egale a la date de facture.");
+        }
+
+        BigDecimal montantHt = amountOrZero(dto.getMontantHt());
+        BigDecimal montantTva = amountOrZero(dto.getMontantTva());
+        if (dto.getMontantTtc() != null
+                && montantHt.add(montantTva).compareTo(dto.getMontantTtc()) != 0) {
+            throw new IllegalArgumentException("Le montant TTC doit etre egal au montant HT plus TVA.");
+        }
+    }
+
+    private BigDecimal amountOrZero(BigDecimal amount) {
+        return amount != null ? amount : BigDecimal.ZERO;
     }
 }

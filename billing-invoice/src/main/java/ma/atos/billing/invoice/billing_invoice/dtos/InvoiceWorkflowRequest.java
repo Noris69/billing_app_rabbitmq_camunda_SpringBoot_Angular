@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import ma.atos.billing.invoice.billing_invoice.enums.ModeReglement;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class InvoiceWorkflowRequest {
@@ -17,13 +18,13 @@ public class InvoiceWorkflowRequest {
     private LocalDate dateDue;
 
     @PositiveOrZero
-    private Double montantHt;
+    private BigDecimal montantHt;
 
     @PositiveOrZero
-    private Double montantTva;
+    private BigDecimal montantTva;
 
     @PositiveOrZero
-    private Double montantTtc;
+    private BigDecimal montantTtc;
 
     private ModeReglement modeReglement;
 
@@ -64,27 +65,27 @@ public class InvoiceWorkflowRequest {
         this.dateDue = dateDue;
     }
 
-    public Double getMontantHt() {
+    public BigDecimal getMontantHt() {
         return montantHt;
     }
 
-    public void setMontantHt(Double montantHt) {
+    public void setMontantHt(BigDecimal montantHt) {
         this.montantHt = montantHt;
     }
 
-    public Double getMontantTva() {
+    public BigDecimal getMontantTva() {
         return montantTva;
     }
 
-    public void setMontantTva(Double montantTva) {
+    public void setMontantTva(BigDecimal montantTva) {
         this.montantTva = montantTva;
     }
 
-    public Double getMontantTtc() {
+    public BigDecimal getMontantTtc() {
         return montantTtc;
     }
 
-    public void setMontantTtc(Double montantTtc) {
+    public void setMontantTtc(BigDecimal montantTtc) {
         this.montantTtc = montantTtc;
     }
 

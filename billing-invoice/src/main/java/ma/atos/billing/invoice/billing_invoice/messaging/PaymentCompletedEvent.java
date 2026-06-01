@@ -1,5 +1,6 @@
 package ma.atos.billing.invoice.billing_invoice.messaging;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentCompletedEvent(
@@ -10,7 +11,7 @@ public record PaymentCompletedEvent(
         Long invoiceId,
         String invoiceReference,
         String transactionReference,
-        Double amount,
+        BigDecimal amount,
         String currency,
         String status,
         String failureReason

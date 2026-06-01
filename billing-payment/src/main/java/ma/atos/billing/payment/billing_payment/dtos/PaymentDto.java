@@ -3,6 +3,7 @@ package ma.atos.billing.payment.billing_payment.dtos;
 import ma.atos.billing.payment.billing_payment.enums.ModeReglement;
 import ma.atos.billing.payment.billing_payment.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentDto(
@@ -12,7 +13,7 @@ public record PaymentDto(
         Long customerId,
         Long creancierId,
         Long pointDeVenteId,
-        Double amount,
+        BigDecimal amount,
         String currency,
         ModeReglement modeReglement,
         String transactionReference,

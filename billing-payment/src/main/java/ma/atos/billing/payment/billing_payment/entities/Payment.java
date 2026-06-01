@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -48,8 +49,8 @@ public class Payment {
 
     private LocalDate date;
 
-    @Column(name = "montant")
-    private Double amount;
+    @Column(name = "montant", precision = 19, scale = 2)
+    private BigDecimal amount;
 
     @Column(name = "operation_type")
     private String operationType;

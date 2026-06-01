@@ -7,6 +7,8 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component("checkInvoiceDelegate")
 public class CheckInvoiceDelegate implements JavaDelegate {
 
@@ -22,7 +24,7 @@ public class CheckInvoiceDelegate implements JavaDelegate {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new IllegalArgumentException("Facture introuvable : " + invoiceId));
 
-        if (invoice.getMontantTtc() == null || invoice.getMontantTtc() < 0) {
+        if (invoice.getMontantTtc() == null || invoice.getMontantTtc().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Le montant TTC de la facture est invalide");
         }
 

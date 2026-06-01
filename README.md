@@ -110,6 +110,57 @@ http://localhost:8080/swagger-ui.html
 http://localhost:8082/swagger-ui.html
 ```
 
+### Securite Camunda
+
+Les endpoints Camunda ne sont plus publics :
+
+```text
+/camunda/**
+/engine-rest/**
+```
+
+Ils passent par la securite Spring Resource Server et necessitent donc un token JWT valide.
+
+### Controle de roles
+
+Les microservices lisent les roles Keycloak depuis `realm_access.roles`.
+
+Roles metier :
+
+```text
+admin              : acces complet
+agent_facturation  : factures, creanciers, points de vente, workflows
+agent_paiement     : transactions payment
+lecteur            : consultation seule
+```
+
+Le realm Docker declare ces roles et donne le role `admin` a l'utilisateur `admin`.
+
+Important : si Keycloak existe deja avec un volume persistant, le fichier d'import ne sera pas rejoue automatiquement. Dans ce cas, creer les roles ci-dessus dans Keycloak et affecter au moins `admin` a l'utilisateur d'administration.
+
+### RabbitMQ idempotent et DLQ
+
+Les consommateurs RabbitMQ enregistrent les `eventId` deja traites dans une table `processed_message`.
+
+Objectifs :
+
+- ignorer proprement un message rejoue par RabbitMQ ;
+- eviter de creer deux paiements pour le meme `PaymentRequestedEvent` ;
+- eviter de mettre deux fois a jour une facture pour le meme `PaymentCompletedEvent`.
+
+Les listeners utilisent aussi un retry applicatif :
+
+```text
+3 tentatives -> backoff progressif -> DLQ
+```
+
+Queues DLQ :
+
+```text
+payment.requested.dlq
+invoice.payment.completed.dlq
+```
+
 ### Vault
 
 HashiCorp Vault a ete integre pour sortir les secrets des fichiers de configuration.
@@ -564,7 +615,7 @@ Exemple :
 - Les transactions doivent venir du microservice `billing-payment`.
 - Les factures, creanciers et points de vente viennent du microservice `billing-invoice`.
 - Le microservice payment ne doit pas utiliser une table customer locale comme source de verite.
-- RabbitMQ peut rejouer des anciens messages si les queues ne sont pas videes ; en cas d'erreurs en boucle, verifier les messages en attente.
+- RabbitMQ peut rejouer des anciens messages ; les `eventId` traites sont maintenant stockes pour rendre les listeners idempotents.
 - Vault est utilise par les backends, pas directement par Angular.
 
 ## Licence

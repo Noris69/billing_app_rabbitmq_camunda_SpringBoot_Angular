@@ -1,5 +1,7 @@
 package ma.atos.billing.payment.billing_payment.dtos;
 
+import java.math.BigDecimal;
+
 public record PaymentDashboardDto(
         long totalTransactions,
         long successfulTransactions,
@@ -7,6 +9,6 @@ public record PaymentDashboardDto(
         long pendingTransactions,
         long cardTransactions,
         long cashTransactions,
-        double totalCollected
+        BigDecimal totalCollected
 ) {
 }

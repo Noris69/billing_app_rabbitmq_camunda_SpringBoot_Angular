@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,9 +14,9 @@ public class InvoiceReportDto {
     private String reference;
     private String dateInvoice;
     private String dateDue;
-    private Double montantHt;
-    private Double montantTva;
-    private Double montantTtc;
+    private BigDecimal montantHt;
+    private BigDecimal montantTva;
+    private BigDecimal montantTtc;
     private String status;
     private String modeReglement;
     private String description;

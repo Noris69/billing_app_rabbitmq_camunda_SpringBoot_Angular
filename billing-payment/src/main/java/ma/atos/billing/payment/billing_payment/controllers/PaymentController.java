@@ -44,6 +44,16 @@ public class PaymentController {
         return ResponseEntity.ok(service.retryPayment(id));
     }
 
+    @PostMapping("/{id}/mark-success")
+    public ResponseEntity<PaymentDto> markSuccess(@PathVariable Long id) {
+        return ResponseEntity.ok(service.markSuccess(id));
+    }
+
+    @PostMapping("/{id}/mark-failed")
+    public ResponseEntity<PaymentDto> markFailed(@PathVariable Long id) {
+        return ResponseEntity.ok(service.markFailed(id));
+    }
+
     @GetMapping("/{id}/attempts")
     public ResponseEntity<List<PaymentDto>> getAttempts(@PathVariable Long id) {
         return ResponseEntity.ok(service.findAttempts(id));

@@ -92,16 +92,24 @@ public class PaymentServiceImp implements PaymentService {
         retry.setPointDeVenteId(original.getPointDeVenteId());
         retry.setAmount(original.getAmount());
         retry.setOperationType(resolveModeReglement(toModeReglement(original.getOperationType())).name());
-        retry.setStatus(PaymentStatus.SUCCESS.name());
+        retry.setStatus(PaymentStatus.PENDING.name());
         retry.setFailureReason(null);
         retry.setParentPaymentId(rootPaymentId);
         retry.setAttemptNumber(nextAttemptNumber(original.getInvoiceId(), rootPaymentId));
 
-        PaymentDto dto = toDto(repository.save(retry));
-        if (dto.invoiceId() != null) {
-            publisher.publish(toCompletedEvent(dto, dto.invoiceId(), dto.invoiceReference(), PaymentStatus.SUCCESS));
-        }
-        return dto;
+        return toDto(repository.save(retry));
+    }
+
+    @Override
+    @Transactional
+    public PaymentDto markSuccess(Long id) {
+        return closePayment(id, PaymentStatus.SUCCESS, null);
+    }
+
+    @Override
+    @Transactional
+    public PaymentDto markFailed(Long id) {
+        return closePayment(id, PaymentStatus.FAILED, "Paiement refuse par la simulation");
     }
 
     @Override
@@ -151,6 +159,23 @@ public class PaymentServiceImp implements PaymentService {
         return "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
     }
 
+    private PaymentDto closePayment(Long id, PaymentStatus status, String failureReason) {
+        Payment payment = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Paiement introuvable : " + id));
+        PaymentStatus currentStatus = toPaymentStatus(payment.getStatus());
+        if (currentStatus != PaymentStatus.PENDING) {
+            throw new IllegalArgumentException("Seul un paiement en attente peut etre cloture.");
+        }
+
+        payment.setStatus(status.name());
+        payment.setFailureReason(failureReason);
+        PaymentDto dto = toDto(repository.save(payment));
+        if (dto.invoiceId() != null) {
+            publisher.publish(toCompletedEvent(dto, dto.invoiceId(), dto.invoiceReference(), status));
+        }
+        return dto;
+    }
+
     private String paymentSortProperty(String sortBy) {
         return switch (sortBy) {
             case "customerId", "invoiceId", "creancierId", "pointDeVenteId", "amount", "operationType", "status", "createdDate" -> sortBy;
@@ -166,7 +191,7 @@ public class PaymentServiceImp implements PaymentService {
         if (request.paymentSuccess() != null) {
             return request.paymentSuccess() ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
         }
-        return request.amount() != null && request.amount() > 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
+        return PaymentStatus.PENDING;
     }
 
     private ModeReglement resolveModeReglement(ModeReglement modeReglement) {

@@ -59,6 +59,9 @@ billing:
     payment-completed-queue: invoice.payment.completed.queue
     payment-requested-routing-key: payment.requested
     payment-completed-routing-key: payment.completed
+    dead-letter-exchange: billing.dlx
+    payment-requested-dlq: payment.requested.dlq
+    payment-requested-dlq-routing-key: payment.requested.dlq
 
 springdoc:
   api-docs:

@@ -40,9 +40,9 @@
     <field name="reference" class="java.lang.String"/>
     <field name="dateInvoice" class="java.lang.Object"/>
     <field name="dateDue" class="java.lang.Object"/>
-    <field name="montantHt" class="java.lang.Double"/>
-    <field name="montantTva" class="java.lang.Double"/>
-    <field name="montantTtc" class="java.lang.Double"/>
+    <field name="montantHt" class="java.math.BigDecimal"/>
+    <field name="montantTva" class="java.math.BigDecimal"/>
+    <field name="montantTtc" class="java.math.BigDecimal"/>
     <field name="status" class="java.lang.Object"/>
     <field name="modeReglement" class="java.lang.Object"/>
     <field name="description" class="java.lang.String"/>

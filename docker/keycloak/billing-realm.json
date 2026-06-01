@@ -1,6 +1,26 @@
 {
   "realm": "billing",
   "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Acces complet a l'application"
+      },
+      {
+        "name": "agent_facturation",
+        "description": "Gestion des factures, creanciers et points de vente"
+      },
+      {
+        "name": "agent_paiement",
+        "description": "Gestion des transactions de paiement"
+      },
+      {
+        "name": "lecteur",
+        "description": "Consultation seule"
+      }
+    ]
+  },
   "clients": [
     {
       "clientId": "billing-frontend",
@@ -33,6 +53,9 @@
           "value": "admin",
           "temporary": false
         }
+      ],
+      "realmRoles": [
+        "admin"
       ]
     }
   ]
