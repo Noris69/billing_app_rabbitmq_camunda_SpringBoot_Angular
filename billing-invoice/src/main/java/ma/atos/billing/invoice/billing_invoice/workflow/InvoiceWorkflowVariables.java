@@ -17,6 +17,7 @@ public final class InvoiceWorkflowVariables {
     public static final String CREANCIER_ID = "creancierId";
     public static final String POINT_DE_VENTE_ID = "pointDeVenteId";
     public static final String PAYMENT_SUCCESS = "paymentSuccess";
+    public static final String VALIDATION_REQUIRED = "validationRequired";
 
     private InvoiceWorkflowVariables() {
     }

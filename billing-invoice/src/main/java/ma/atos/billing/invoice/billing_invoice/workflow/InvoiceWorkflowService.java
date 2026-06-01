@@ -9,6 +9,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,11 @@ public class InvoiceWorkflowService {
         variables.put(InvoiceWorkflowVariables.CUSTOMER_ID, request.getCustomerId());
         variables.put(InvoiceWorkflowVariables.CREANCIER_ID, request.getCreancierId());
         variables.put(InvoiceWorkflowVariables.POINT_DE_VENTE_ID, request.getPointDeVenteId());
+        variables.put(InvoiceWorkflowVariables.VALIDATION_REQUIRED, isValidationRequired(request.getMontantTtc()));
         return variables;
+    }
+
+    private boolean isValidationRequired(BigDecimal montantTtc) {
+        return montantTtc != null && montantTtc.compareTo(new BigDecimal("10000")) > 0;
     }
 }

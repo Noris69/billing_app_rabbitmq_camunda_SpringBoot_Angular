@@ -9,7 +9,7 @@ spring:
       enabled: false
     vault:
       uri: ${VAULT_URI:http://localhost:8200}
-      token: ${VAULT_TOKEN}
+      token: ${VAULT_TOKEN:root}
       kv:
         enabled: true
         backend: secret

@@ -13,6 +13,8 @@ public interface InvoiceService {
 
     InvoiceDto create(InvoiceDto dto);
 
+    Invoice createFromWorkflow(InvoiceDto dto);
+
     Page<InvoiceDto> search(
             String reference,
             StatusInvoice status,

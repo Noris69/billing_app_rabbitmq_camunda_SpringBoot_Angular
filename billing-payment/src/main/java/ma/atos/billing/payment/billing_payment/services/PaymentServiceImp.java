@@ -278,13 +278,13 @@ public class PaymentServiceImp implements PaymentService {
 
     private PaymentStatus toPaymentStatus(String value) {
         if (!hasText(value)) {
-            return PaymentStatus.SUCCESS;
+            return PaymentStatus.PENDING;
         }
 
         try {
             return PaymentStatus.valueOf(value);
         } catch (IllegalArgumentException ex) {
-            return PaymentStatus.SUCCESS;
+            throw new IllegalArgumentException("Statut paiement invalide : " + value);
         }
     }
 

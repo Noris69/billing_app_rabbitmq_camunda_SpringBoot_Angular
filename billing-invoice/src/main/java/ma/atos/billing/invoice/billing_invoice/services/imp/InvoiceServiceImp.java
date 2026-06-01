@@ -65,6 +65,16 @@ public class InvoiceServiceImp implements InvoiceService {
     @Override
     @Transactional
     public InvoiceDto create(InvoiceDto dto) {
+        return mapper.toDto(createInvoice(dto));
+    }
+
+    @Override
+    @Transactional
+    public Invoice createFromWorkflow(InvoiceDto dto) {
+        return createInvoice(dto);
+    }
+
+    private Invoice createInvoice(InvoiceDto dto) {
         dto.setStatus(StatusInvoice.EN_ATTENTE);
         validator.validate(dto);
         ensureUniqueReference(dto.getReference());
@@ -82,7 +92,7 @@ public class InvoiceServiceImp implements InvoiceService {
         Invoice savedInvoice = repository.save(invoice);
         InvoiceDto savedDto = mapper.toDto(savedInvoice);
         notificationService.notifyInvoiceChange(savedDto);
-        return savedDto;
+        return savedInvoice;
     }
 
     @Override

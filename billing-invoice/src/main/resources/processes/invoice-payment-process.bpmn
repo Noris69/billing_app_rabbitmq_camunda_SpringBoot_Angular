@@ -14,10 +14,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1fzq2hn" sourceRef="Activity_1lptme2" targetRef="Gateway_1lam67v" />
     <bpmn:sequenceFlow id="Flow_11zlv7x" name="Oui" sourceRef="Gateway_1lam67v" targetRef="Activity_02s8q6k">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${montantTtc &gt; 10000}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationRequired == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0srfqtr" name="Non" sourceRef="Gateway_1lam67v" targetRef="Activity_1k2tv88">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${montantTtc &lt;= 10000}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validationRequired == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_151bxpt" sourceRef="Activity_02s8q6k" targetRef="Activity_1k2tv88" />
     <bpmn:exclusiveGateway id="Gateway_0txohco" name="Paiement Réussi">
