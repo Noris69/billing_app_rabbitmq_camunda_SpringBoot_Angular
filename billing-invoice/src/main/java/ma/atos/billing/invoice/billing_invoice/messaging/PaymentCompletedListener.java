@@ -8,6 +8,9 @@ import ma.atos.billing.invoice.billing_invoice.mappers.InvoiceMapper;
 import ma.atos.billing.invoice.billing_invoice.repository.InvoiceRepository;
 import ma.atos.billing.invoice.billing_invoice.repository.ProcessedMessageRepository;
 import ma.atos.billing.invoice.billing_invoice.services.InvoiceNotificationService;
+import ma.atos.billing.invoice.billing_invoice.workflow.InvoiceWorkflowVariables;
+import org.camunda.bpm.engine.MismatchingMessageCorrelationException;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,17 +26,20 @@ public class PaymentCompletedListener {
     private final ProcessedMessageRepository processedMessageRepository;
     private final InvoiceNotificationService notificationService;
     private final InvoiceMapper invoiceMapper;
+    private final RuntimeService runtimeService;
 
     public PaymentCompletedListener(
             InvoiceRepository invoiceRepository,
             ProcessedMessageRepository processedMessageRepository,
             InvoiceNotificationService notificationService,
-            InvoiceMapper invoiceMapper
+            InvoiceMapper invoiceMapper,
+            RuntimeService runtimeService
     ) {
         this.invoiceRepository = invoiceRepository;
         this.processedMessageRepository = processedMessageRepository;
         this.notificationService = notificationService;
         this.invoiceMapper = invoiceMapper;
+        this.runtimeService = runtimeService;
     }
 
     @Transactional
@@ -59,6 +65,23 @@ public class PaymentCompletedListener {
         // Notification temps réel SSE du changement de statut
         InvoiceDto dto = invoiceMapper.toDto(savedInvoice);
         notificationService.notifyInvoiceChange(dto);
+        correlateWorkflow(event);
+    }
+
+    private void correlateWorkflow(PaymentCompletedEvent event) {
+        try {
+            runtimeService.createMessageCorrelation(InvoiceWorkflowVariables.PAYMENT_COMPLETED_MESSAGE)
+                    .processInstanceBusinessKey(event.invoiceReference())
+                    .setVariable(InvoiceWorkflowVariables.PAYMENT_SUCCESS, "SUCCESS".equalsIgnoreCase(event.status()))
+                    .correlate();
+        } catch (MismatchingMessageCorrelationException ex) {
+            LOGGER.info(
+                    "Aucune instance Camunda en attente du paiement. invoiceId={}, reference={}, status={}",
+                    event.invoiceId(),
+                    event.invoiceReference(),
+                    event.status()
+            );
+        }
     }
 
     private boolean isDuplicate(String eventId) {

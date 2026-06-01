@@ -6,11 +6,11 @@ import ma.atos.billing.invoice.billing_invoice.entities.Invoice;
 import ma.atos.billing.invoice.billing_invoice.entities.PointDeVente;
 import ma.atos.billing.invoice.billing_invoice.enums.ModeReglement;
 import ma.atos.billing.invoice.billing_invoice.enums.StatusInvoice;
-import ma.atos.billing.invoice.billing_invoice.messaging.PaymentRequestedPublisher;
 import ma.atos.billing.invoice.billing_invoice.repository.CreancierRepository;
 import ma.atos.billing.invoice.billing_invoice.repository.CustomerRepository;
 import ma.atos.billing.invoice.billing_invoice.repository.InvoiceRepository;
 import ma.atos.billing.invoice.billing_invoice.repository.PointDeVenteRepository;
+import ma.atos.billing.invoice.billing_invoice.services.InvoiceBusinessValidator;
 import ma.atos.billing.invoice.billing_invoice.workflow.InvoiceWorkflowVariables;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -26,20 +26,20 @@ public class CreateInvoiceDelegate implements JavaDelegate {
     private final CustomerRepository customerRepository;
     private final CreancierRepository creancierRepository;
     private final PointDeVenteRepository pointDeVenteRepository;
-    private final PaymentRequestedPublisher paymentRequestedPublisher;
+    private final InvoiceBusinessValidator validator;
 
     public CreateInvoiceDelegate(
             InvoiceRepository invoiceRepository,
             CustomerRepository customerRepository,
             CreancierRepository creancierRepository,
             PointDeVenteRepository pointDeVenteRepository,
-            PaymentRequestedPublisher paymentRequestedPublisher
+            InvoiceBusinessValidator validator
     ) {
         this.invoiceRepository = invoiceRepository;
         this.customerRepository = customerRepository;
         this.creancierRepository = creancierRepository;
         this.pointDeVenteRepository = pointDeVenteRepository;
-        this.paymentRequestedPublisher = paymentRequestedPublisher;
+        this.validator = validator;
     }
 
     @Override
@@ -50,11 +50,14 @@ public class CreateInvoiceDelegate implements JavaDelegate {
         }
 
         Long customerId = requiredLong(execution, InvoiceWorkflowVariables.CUSTOMER_ID);
-        Customer customer = customerRepository.findById(customerId).orElse(null);
-        Creancier creancier = creancierRepository.findById(requiredLong(execution, InvoiceWorkflowVariables.CREANCIER_ID))
-                .orElseThrow(() -> new IllegalArgumentException("Creancier introuvable"));
-        PointDeVente pointDeVente = pointDeVenteRepository.findById(requiredLong(execution, InvoiceWorkflowVariables.POINT_DE_VENTE_ID))
-                .orElseThrow(() -> new IllegalArgumentException("Point de vente introuvable"));
+        Long creancierId = requiredLong(execution, InvoiceWorkflowVariables.CREANCIER_ID);
+        Long pointDeVenteId = requiredLong(execution, InvoiceWorkflowVariables.POINT_DE_VENTE_ID);
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer introuvable : " + customerId));
+        Creancier creancier = creancierRepository.findById(creancierId)
+                .orElseThrow(() -> new IllegalArgumentException("Creancier introuvable : " + creancierId));
+        PointDeVente pointDeVente = pointDeVenteRepository.findById(pointDeVenteId)
+                .orElseThrow(() -> new IllegalArgumentException("Point de vente introuvable : " + pointDeVenteId));
 
         Invoice invoice = new Invoice();
         invoice.setReference(requiredString(execution, InvoiceWorkflowVariables.REFERENCE));
@@ -69,18 +72,11 @@ public class CreateInvoiceDelegate implements JavaDelegate {
         invoice.setCustomer(customer);
         invoice.setCreancier(creancier);
         invoice.setPointDeVente(pointDeVente);
-        validateBusinessRules(invoice);
+        validator.validate(invoice);
+        ensureUniqueReference(invoice.getReference());
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
         execution.setVariable(InvoiceWorkflowVariables.INVOICE_ID, savedInvoice.getId());
-        Object paymentSuccess = execution.getVariable(InvoiceWorkflowVariables.PAYMENT_SUCCESS);
-        paymentRequestedPublisher.publish(
-                savedInvoice,
-                customerId,
-                creancier.getId(),
-                pointDeVente.getId(),
-                paymentSuccess == null || Boolean.TRUE.equals(paymentSuccess)
-        );
     }
 
     private String requiredString(DelegateExecution execution, String variableName) {
@@ -131,22 +127,9 @@ public class CreateInvoiceDelegate implements JavaDelegate {
         return value != null ? ModeReglement.valueOf(value.toString()) : null;
     }
 
-    private void validateBusinessRules(Invoice invoice) {
-        if (invoice.getDateInvoice() != null
-                && invoice.getDateDue() != null
-                && invoice.getDateDue().isBefore(invoice.getDateInvoice())) {
-            throw new IllegalArgumentException("La date d'echeance doit etre superieure ou egale a la date de facture.");
-        }
-
-        BigDecimal montantHt = amountOrZero(invoice.getMontantHt());
-        BigDecimal montantTva = amountOrZero(invoice.getMontantTva());
-        if (invoice.getMontantTtc() != null
-                && montantHt.add(montantTva).compareTo(invoice.getMontantTtc()) != 0) {
-            throw new IllegalArgumentException("Le montant TTC doit etre egal au montant HT plus TVA.");
-        }
-    }
-
-    private BigDecimal amountOrZero(BigDecimal amount) {
-        return amount != null ? amount : BigDecimal.ZERO;
+    private void ensureUniqueReference(String reference) {
+        invoiceRepository.findByReference(reference).ifPresent(invoice -> {
+            throw new IllegalArgumentException("Reference facture deja utilisee : " + reference);
+        });
     }
 }

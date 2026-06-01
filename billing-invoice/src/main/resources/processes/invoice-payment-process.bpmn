@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0vss26a" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.46.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:message id="Message_PaymentCompleted" name="PaymentCompleted" />
   <bpmn:process id="invoice-payment-process" isExecutable="true" camunda:historyTimeToLive="30">
     <bpmn:startEvent id="StartEvent_1" name="Start Event">
       <bpmn:outgoing>Flow_05bo4j5</bpmn:outgoing>
@@ -20,11 +21,12 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_151bxpt" sourceRef="Activity_02s8q6k" targetRef="Activity_1k2tv88" />
     <bpmn:exclusiveGateway id="Gateway_0txohco" name="Paiement Réussi">
-      <bpmn:incoming>Flow_0iad20k</bpmn:incoming>
+      <bpmn:incoming>Flow_PaymentCompletedToGateway</bpmn:incoming>
       <bpmn:outgoing>Flow_02xsn16</bpmn:outgoing>
       <bpmn:outgoing>Flow_0nyb8vi</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0iad20k" sourceRef="Activity_1k2tv88" targetRef="Gateway_0txohco" />
+    <bpmn:sequenceFlow id="Flow_0iad20k" sourceRef="Activity_1k2tv88" targetRef="Event_PaymentCompleted" />
+    <bpmn:sequenceFlow id="Flow_PaymentCompletedToGateway" sourceRef="Event_PaymentCompleted" targetRef="Gateway_0txohco" />
     <bpmn:sequenceFlow id="Flow_02xsn16" name="Oui" sourceRef="Gateway_0txohco" targetRef="Activity_01gpil7">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${paymentSuccess == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -50,6 +52,11 @@
       <bpmn:incoming>Flow_151bxpt</bpmn:incoming>
       <bpmn:outgoing>Flow_0iad20k</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_PaymentCompleted" name="Attendre retour paiement">
+      <bpmn:incoming>Flow_0iad20k</bpmn:incoming>
+      <bpmn:outgoing>Flow_PaymentCompletedToGateway</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_PaymentCompleted" messageRef="Message_PaymentCompleted" />
+    </bpmn:intermediateCatchEvent>
     <bpmn:userTask id="Activity_02s8q6k" name="Valider facture">
       <bpmn:incoming>Flow_11zlv7x</bpmn:incoming>
       <bpmn:outgoing>Flow_151bxpt</bpmn:outgoing>

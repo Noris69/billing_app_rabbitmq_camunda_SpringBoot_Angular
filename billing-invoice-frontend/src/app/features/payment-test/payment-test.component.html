@@ -63,20 +63,6 @@
         </nz-form-item>
       </nz-col>
 
-      <nz-col [nzXs]="24" [nzMd]="4">
-        <nz-form-item>
-          <nz-form-label nzRequired>Statut facture</nz-form-label>
-          <nz-form-control>
-            <nz-select formControlName="targetStatus">
-              <nz-option
-                *ngFor="let status of invoiceStatusOptions"
-                [nzLabel]="status.label"
-                [nzValue]="status.value"
-              ></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </nz-col>
     </nz-row>
 
     <nz-row [nzGutter]="16">
@@ -282,6 +268,30 @@
           <td>{{ payment.createdDate ? (payment.createdDate | date:'dd/MM/yyyy') : '-' }}</td>
           <td>
             <a nz-button nzSize="small" [routerLink]="['/paiements', payment.id]">Voir</a>
+            <button
+              *ngIf="canClosePayment(payment)"
+              nz-button
+              nzSize="small"
+              nzType="primary"
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Valider ce paiement ?"
+              (nzOnConfirm)="validatePayment(payment)"
+            >
+              Valider
+            </button>
+            <button
+              *ngIf="canClosePayment(payment)"
+              nz-button
+              nzDanger
+              nzSize="small"
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Refuser ce paiement ?"
+              (nzOnConfirm)="refusePayment(payment)"
+            >
+              Refuser
+            </button>
             <button
               *ngIf="canRetry(payment)"
               nz-button

@@ -3,6 +3,7 @@ package ma.atos.billing.invoice.billing_invoice.workflow;
 public final class InvoiceWorkflowVariables {
 
     public static final String PROCESS_KEY = "invoice-payment-process";
+    public static final String PAYMENT_COMPLETED_MESSAGE = "PaymentCompleted";
     public static final String INVOICE_ID = "invoiceId";
     public static final String REFERENCE = "reference";
     public static final String DATE_INVOICE = "dateInvoice";

@@ -48,11 +48,7 @@ public class InvoiceWorkflowService {
     }
 
     public void completeValidationTask(String taskId, Boolean paymentSuccess) {
-        Map<String, Object> variables = new HashMap<>();
-        if (paymentSuccess != null) {
-            variables.put(InvoiceWorkflowVariables.PAYMENT_SUCCESS, paymentSuccess);
-        }
-        taskService.complete(taskId, variables);
+        taskService.complete(taskId);
     }
 
     private Long readInvoiceId(ProcessInstanceWithVariables processInstance) {
@@ -76,7 +72,6 @@ public class InvoiceWorkflowService {
         variables.put(InvoiceWorkflowVariables.CUSTOMER_ID, request.getCustomerId());
         variables.put(InvoiceWorkflowVariables.CREANCIER_ID, request.getCreancierId());
         variables.put(InvoiceWorkflowVariables.POINT_DE_VENTE_ID, request.getPointDeVenteId());
-        variables.put(InvoiceWorkflowVariables.PAYMENT_SUCCESS, Boolean.TRUE.equals(request.getPaymentSuccess()));
         return variables;
     }
 }

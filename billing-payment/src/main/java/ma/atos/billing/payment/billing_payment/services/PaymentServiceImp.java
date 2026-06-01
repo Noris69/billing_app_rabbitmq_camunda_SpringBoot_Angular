@@ -73,14 +73,8 @@ public class PaymentServiceImp implements PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Paiement introuvable : " + id));
         PaymentStatus originalStatus = toPaymentStatus(original.getStatus());
         if (originalStatus != PaymentStatus.FAILED
-                && originalStatus != PaymentStatus.CANCELLED
-                && originalStatus != PaymentStatus.PENDING) {
-            throw new IllegalArgumentException("Seuls les paiements echoues ou en attente peuvent etre relances.");
-        }
-        if (originalStatus == PaymentStatus.PENDING) {
-            original.setStatus(PaymentStatus.CANCELLED.name());
-            original.setFailureReason("Paiement annule par une relance depuis l interface");
-            repository.save(original);
+                && originalStatus != PaymentStatus.CANCELLED) {
+            throw new IllegalArgumentException("Seuls les paiements echoues ou annules peuvent etre relances.");
         }
 
         Long rootPaymentId = original.getParentPaymentId() != null ? original.getParentPaymentId() : original.getId();
@@ -185,12 +179,6 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private PaymentStatus resolveStatus(PaymentRequestDto request) {
-        if (request.status() != null) {
-            return request.status();
-        }
-        if (request.paymentSuccess() != null) {
-            return request.paymentSuccess() ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
-        }
         return PaymentStatus.PENDING;
     }
 

@@ -31,7 +31,7 @@ public class PaymentRequestedPublisher {
                 invoice.getCustomer() != null ? invoice.getCustomer().getId() : null,
                 invoice.getCreancier() != null ? invoice.getCreancier().getId() : null,
                 invoice.getPointDeVente() != null ? invoice.getPointDeVente().getId() : null,
-                true
+                null
         );
     }
 
