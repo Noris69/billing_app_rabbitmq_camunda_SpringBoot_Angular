@@ -67,6 +67,7 @@ export class InvoiceListComponent implements OnInit {
   invoices: Invoice[] = [];
   loading = false;
   errorMessage = '';
+  exporting = false;
   totalElements = 0;
   pageIndex = 1;
   pageSize = 10;
@@ -142,6 +143,14 @@ export class InvoiceListComponent implements OnInit {
     this.search();
   }
 
+  exportCsv(): void {
+    this.exportInvoices('csv');
+  }
+
+  exportExcel(): void {
+    this.exportInvoices('xls');
+  }
+
   onPageIndexChange(pageIndex: number): void {
     this.pageIndex = pageIndex;
     this.search();
@@ -188,6 +197,136 @@ export class InvoiceListComponent implements OnInit {
   pointDeVenteLabel(pointDeVenteId: number | null | undefined): string {
     const pointDeVente = pointDeVenteId ? this.pointsDeVenteById.get(pointDeVenteId) : null;
     return pointDeVente ? pointDeVente.nom : this.fallbackId(pointDeVenteId);
+  }
+
+  emptyMessage(): string {
+    const filters = this.searchForm.getRawValue();
+    if (filters.reference?.trim()) {
+      return 'Aucune facture pour cette reference';
+    }
+    if (filters.status) {
+      return `Aucune facture avec le statut ${filters.status}`;
+    }
+    return 'Aucune facture pour ce client';
+  }
+
+  private exportInvoices(format: 'csv' | 'xls'): void {
+    this.exporting = true;
+    this.errorMessage = '';
+    const rawValue = this.searchForm.getRawValue();
+
+    this.invoiceService
+      .searchInvoices({
+        page: 0,
+        size: Math.max(this.totalElements, this.invoices.length, 1000),
+        reference: rawValue.reference?.trim() || undefined,
+        status: rawValue.status ?? undefined,
+        sortBy: this.sortBy,
+        sortDir: this.sortDir()
+      })
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.exporting = false;
+        })
+      )
+      .subscribe({
+        next: (page) => {
+          const invoices = page.content ?? [];
+          if (format === 'csv') {
+            this.downloadText(this.toCsv(invoices), 'factures.csv', 'text/csv;charset=utf-8');
+            return;
+          }
+
+          this.downloadText(this.toExcelHtml(invoices), 'factures.xls', 'application/vnd.ms-excel;charset=utf-8');
+        },
+        error: (error: unknown) => {
+          this.errorMessage = extractApiErrorMessage(error, "L'export des factures a echoue.");
+        }
+      });
+  }
+
+  private toCsv(invoices: Invoice[]): string {
+    const rows = [
+      ['ID', 'Reference', 'Status', 'Customer', 'Creancier', 'Point vente', 'HT', 'TVA', 'TTC', 'Mode', 'Date creation'],
+      ...invoices.map((invoice) => [
+        invoice.id,
+        invoice.reference,
+        invoice.status ?? '',
+        this.customerLabel(invoice.customerId),
+        this.creancierLabel(invoice.creancierId),
+        this.pointDeVenteLabel(invoice.pointDeVenteId),
+        invoice.montantHt ?? '',
+        invoice.montantTva ?? '',
+        invoice.montantTtc ?? '',
+        invoice.modeReglement ?? '',
+        this.formatDateTime(invoice.createdDate)
+      ])
+    ];
+
+    return rows.map((row) => row.map((value) => this.csvCell(value)).join(';')).join('\r\n');
+  }
+
+  private toExcelHtml(invoices: Invoice[]): string {
+    const header = ['ID', 'Reference', 'Status', 'Customer', 'Creancier', 'Point vente', 'HT', 'TVA', 'TTC', 'Mode', 'Date creation'];
+    const rows = invoices.map((invoice) => [
+      invoice.id,
+      invoice.reference,
+      invoice.status ?? '',
+      this.customerLabel(invoice.customerId),
+      this.creancierLabel(invoice.creancierId),
+      this.pointDeVenteLabel(invoice.pointDeVenteId),
+      invoice.montantHt ?? '',
+      invoice.montantTva ?? '',
+      invoice.montantTtc ?? '',
+      invoice.modeReglement ?? '',
+      this.formatDateTime(invoice.createdDate)
+    ]);
+
+    return `
+      <html>
+        <head><meta charset="utf-8"></head>
+        <body>
+          <table>
+            <thead><tr>${header.map((cell) => `<th>${this.htmlCell(cell)}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${rows.map((row) => `<tr>${row.map((cell) => `<td>${this.htmlCell(cell)}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+  }
+
+  private downloadText(content: string, filename: string, type: string): void {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvCell(value: unknown): string {
+    return `"${String(value ?? '').replace(/"/g, '""')}"`;
+  }
+
+  private htmlCell(value: unknown): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  private formatDateTime(value: string | number | Date | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('fr-FR');
   }
 
   private toMap<T extends { id: number }>(items: T[]): Map<number, T> {

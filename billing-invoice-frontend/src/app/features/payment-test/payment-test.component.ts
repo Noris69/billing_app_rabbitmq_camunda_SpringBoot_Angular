@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, defaultIfEmpty, filter, finalize, map, switchMap, take, tap, timer, timeout } from 'rxjs';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -12,6 +12,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -52,6 +53,7 @@ interface PaymentTestFormValue {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     ReactiveFormsModule,
     NzAlertModule,
     NzButtonModule,
@@ -61,6 +63,7 @@ interface PaymentTestFormValue {
     NzGridModule,
     NzInputModule,
     NzInputNumberModule,
+    NzPopconfirmModule,
     NzSelectModule,
     NzSpinModule,
     NzTableModule,
@@ -88,7 +91,7 @@ export class PaymentTestComponent implements OnInit {
   ];
 
   readonly form = this.fb.group({
-    reference: [`INV-RMQ-${Date.now()}`, [Validators.required]],
+    reference: [this.generateInvoiceReference(), [Validators.required]],
     dateInvoice: [this.formatDate(new Date()), [Validators.required]],
     dateDue: [this.formatDate(this.addDays(new Date(), 30)), [Validators.required]],
     montantHt: [100, [Validators.required, Validators.min(0)]],
@@ -160,7 +163,7 @@ export class PaymentTestComponent implements OnInit {
 
     this.paymentTestService
       .startInvoicePaymentWorkflow({
-        reference: payload.reference ?? `INV-RMQ-${Date.now()}`,
+        reference: payload.reference ?? this.generateInvoiceReference(),
         dateInvoice: payload.dateInvoice,
         dateDue: payload.dateDue,
         montantHt: Number(payload.montantHt ?? 0),
@@ -210,7 +213,7 @@ export class PaymentTestComponent implements OnInit {
     this.loading = true;
 
     const invoice: CreateInvoicePayload = {
-      reference: payload.reference ?? `INV-RMQ-${Date.now()}`,
+      reference: payload.reference ?? this.generateInvoiceReference(),
       dateInvoice: payload.dateInvoice,
       dateDue: payload.dateDue,
       montantHt: Number(payload.montantHt ?? 0),
@@ -293,8 +296,35 @@ export class PaymentTestComponent implements OnInit {
     this.refreshPayments();
   }
 
+  retryPayment(payment: Payment): void {
+    if (!this.canRetry(payment)) {
+      return;
+    }
+
+    this.refreshing = true;
+    this.paymentTestService
+      .retryPayment(payment.id)
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.refreshing = false;
+        })
+      )
+      .subscribe({
+        next: (retry) => {
+          this.message.success(`Paiement relance: ${retry.transactionReference || 'PAY-' + retry.id}`);
+          this.payments = [retry, ...this.payments.filter((item) => item.id !== payment.id)];
+          this.refreshPayments();
+        },
+        error: (error: unknown) => {
+          this.errorMessage = extractApiErrorMessage(error, 'Impossible de relancer ce paiement.');
+          this.message.error(this.errorMessage);
+        }
+      });
+  }
+
   resetReference(): void {
-    this.form.patchValue({ reference: `INV-RMQ-${Date.now()}` });
+    this.form.patchValue({ reference: this.generateInvoiceReference() });
   }
 
   searchCustomers(query = ''): void {
@@ -398,6 +428,10 @@ export class PaymentTestComponent implements OnInit {
     return 'gold';
   }
 
+  canRetry(payment: Payment): boolean {
+    return payment.status === 'FAILED' || payment.status === 'CANCELLED' || payment.status === 'PENDING';
+  }
+
   private updateAmounts(montantHt: number): void {
     const montantTva = this.roundAmount(montantHt * 0.2);
     const montantTtc = this.roundAmount(montantHt + montantTva);
@@ -482,6 +516,13 @@ export class PaymentTestComponent implements OnInit {
 
   private formatDate(date: Date): string {
     return date.toISOString().slice(0, 10);
+  }
+
+  private generateInvoiceReference(): string {
+    const now = new Date();
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const timePart = now.toTimeString().slice(0, 8).replace(/:/g, '');
+    return `INV-${datePart}-${timePart}`;
   }
 
   private paymentSortDir(): 'asc' | 'desc' {

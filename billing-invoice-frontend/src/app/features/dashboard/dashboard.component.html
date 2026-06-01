@@ -37,13 +37,51 @@
     <nz-card>
       <span class="metric-label">Paiements</span>
       <strong>{{ totalPayments | number }}</strong>
-      <small>{{ successfulPayments | number }} reussis dans les derniers resultats</small>
+      <small>{{ successfulPayments | number }} reussis</small>
     </nz-card>
 
     <nz-card>
-      <span class="metric-label">Montant recent</span>
+      <span class="metric-label">Total encaisse</span>
       <strong>{{ totalAmount | number:'1.2-2' }}</strong>
-      <small>MAD sur les derniers paiements</small>
+      <small>MAD sur les paiements reussis</small>
+    </nz-card>
+
+    <nz-card>
+      <span class="metric-label">Paiements echoues</span>
+      <strong>{{ failedPayments | number }}</strong>
+      <small>transactions a verifier</small>
+    </nz-card>
+
+    <nz-card class="chart-card">
+      <span class="metric-label">Statut paiements</span>
+      <div class="stacked-bar" aria-label="Repartition des paiements par statut">
+        <span class="bar-success" [style.width.%]="successfulPaymentPercent"></span>
+        <span class="bar-failed" [style.width.%]="failedPaymentPercent"></span>
+        <span class="bar-pending" [style.width.%]="pendingPaymentPercent"></span>
+      </div>
+      <div class="chart-legend compact">
+        <span><i class="dot success"></i>{{ successfulPayments | number }} reussis</span>
+        <span><i class="dot failed"></i>{{ failedPayments | number }} echoues</span>
+        <span><i class="dot pending"></i>{{ pendingPayments | number }} en attente</span>
+      </div>
+    </nz-card>
+
+    <nz-card class="chart-card">
+      <span class="metric-label">Par mode</span>
+      <div class="mode-chart">
+        <div
+          class="donut"
+          [style.--card-percent]="cardPaymentPercent + '%'"
+          role="img"
+          aria-label="Repartition des paiements par mode"
+        >
+          <span>{{ cardPaymentPercent }}%</span>
+        </div>
+        <div class="chart-legend">
+          <span><i class="dot card"></i>CARTE: {{ cardPayments | number }}</span>
+          <span><i class="dot cash"></i>ESPECES: {{ cashPayments | number }}</span>
+        </div>
+      </div>
     </nz-card>
 
     <nz-card>
@@ -89,7 +127,9 @@
         <div class="activity-list">
           <div class="activity-row" *ngFor="let payment of recentPayments">
             <div>
-              <strong>{{ payment.transactionReference || ('PAY-' + payment.id) }}</strong>
+              <strong>
+                <a [routerLink]="['/paiements', payment.id]">{{ payment.transactionReference || ('PAY-' + payment.id) }}</a>
+              </strong>
               <span>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }} - {{ payment.modeReglement || '-' }}</span>
             </div>
             <nz-tag [nzColor]="paymentStatusColor(payment.status)">{{ payment.status }}</nz-tag>

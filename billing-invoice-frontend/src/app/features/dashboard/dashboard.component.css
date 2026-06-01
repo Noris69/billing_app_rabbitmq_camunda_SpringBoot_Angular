@@ -34,6 +34,107 @@
   line-height: 1.15;
 }
 
+.chart-card {
+  min-height: 142px;
+}
+
+.mode-chart {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.donut {
+  --card-percent: 0%;
+  width: 82px;
+  height: 82px;
+  flex: 0 0 82px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #fff 0 53%, transparent 54%),
+    conic-gradient(#2563eb 0 var(--card-percent), #14b8a6 var(--card-percent) 100%);
+}
+
+.donut span {
+  color: #172033;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.chart-legend {
+  display: grid;
+  gap: 8px;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.chart-legend.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+}
+
+.dot.card {
+  background: #2563eb;
+}
+
+.dot.cash {
+  background: #14b8a6;
+}
+
+.dot.success {
+  background: #16a34a;
+}
+
+.dot.failed {
+  background: #dc2626;
+}
+
+.dot.pending {
+  background: #f59e0b;
+}
+
+.stacked-bar {
+  height: 18px;
+  display: flex;
+  overflow: hidden;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.stacked-bar span {
+  min-width: 0;
+}
+
+.bar-success {
+  background: #16a34a;
+}
+
+.bar-failed {
+  background: #dc2626;
+}
+
+.bar-pending {
+  background: #f59e0b;
+}
+
 .quick-actions {
   display: flex;
   gap: 12px;
@@ -99,5 +200,14 @@
   .dashboard-heading button,
   .quick-actions a {
     width: 100%;
+  }
+
+  .mode-chart {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .chart-legend.compact {
+    grid-template-columns: 1fr;
   }
 }

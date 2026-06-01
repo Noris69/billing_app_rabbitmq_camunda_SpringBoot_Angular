@@ -18,6 +18,8 @@ public record PaymentDto(
         String transactionReference,
         PaymentStatus status,
         String failureReason,
+        Integer attemptNumber,
+        Long parentPaymentId,
         LocalDateTime createdDate,
         LocalDateTime updatedDate
 ) {

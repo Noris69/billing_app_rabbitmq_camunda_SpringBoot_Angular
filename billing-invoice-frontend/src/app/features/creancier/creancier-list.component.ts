@@ -170,6 +170,23 @@ export class CreancierListComponent implements OnInit {
       });
   }
 
+  emptyMessage(): string {
+    const filters = this.searchForm.getRawValue();
+    if (filters.nom?.trim()) {
+      return 'Aucun creancier trouve pour ce nom';
+    }
+    if (filters.typeCreancier) {
+      return `Aucun creancier trouve pour le type ${filters.typeCreancier}`;
+    }
+    if (filters.ice?.trim()) {
+      return 'Aucun creancier trouve pour cet ICE';
+    }
+    if (filters.telephone?.trim()) {
+      return 'Aucun creancier trouve pour ce telephone';
+    }
+    return 'Aucun creancier trouve';
+  }
+
   private buildSearchParams(): CreancierSearchParams {
     const rawValue = this.searchForm.getRawValue();
 

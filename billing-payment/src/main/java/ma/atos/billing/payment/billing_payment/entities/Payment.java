@@ -40,6 +40,12 @@ public class Payment {
     @Column(name = "creancier_id")
     private Long creancierId;
 
+    @Column(name = "invoice_id")
+    private Long invoiceId;
+
+    @Column(name = "invoice_reference")
+    private String invoiceReference;
+
     private LocalDate date;
 
     @Column(name = "montant")
@@ -50,6 +56,15 @@ public class Payment {
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "failure_reason")
+    private String failureReason;
+
+    @Column(name = "attempt_number")
+    private Integer attemptNumber;
+
+    @Column(name = "parent_payment_id")
+    private Long parentPaymentId;
 
     @Column(name = "pv_id")
     private Long pointDeVenteId;
@@ -64,6 +79,9 @@ public class Payment {
         updatedDate = now;
         if (date == null) {
             date = now;
+        }
+        if (attemptNumber == null || attemptNumber < 1) {
+            attemptNumber = 1;
         }
     }
 

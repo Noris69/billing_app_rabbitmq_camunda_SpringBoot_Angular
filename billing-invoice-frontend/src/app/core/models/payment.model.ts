@@ -38,16 +38,48 @@ export interface Payment {
   transactionReference?: string | null;
   status: PaymentStatus;
   failureReason?: string | null;
+  attemptNumber?: number | null;
+  parentPaymentId?: number | null;
   createdDate?: string | null;
   updatedDate?: string | null;
+}
+
+export interface CreatePaymentPayload {
+  invoiceId: number;
+  invoiceReference?: string | null;
+  customerId?: number | null;
+  creancierId?: number | null;
+  pointDeVenteId?: number | null;
+  amount: number;
+  currency?: string | null;
+  modeReglement?: ModeReglement | null;
+  description?: string | null;
+  paymentSuccess?: boolean | null;
+  status?: PaymentStatus | null;
 }
 
 export interface PaymentSearchParams {
   page?: number;
   size?: number;
   customerId?: number;
+  invoiceId?: number;
+  invoiceReference?: string;
+  creancierId?: number;
+  pointDeVenteId?: number;
+  status?: PaymentStatus;
+  operationType?: ModeReglement;
   sortBy?: string;
   sortDir?: 'asc' | 'desc';
+}
+
+export interface PaymentDashboard {
+  totalTransactions: number;
+  successfulTransactions: number;
+  failedTransactions: number;
+  pendingTransactions: number;
+  cardTransactions: number;
+  cashTransactions: number;
+  totalCollected: number;
 }
 
 export type PaymentPage = SpringPage<Payment>;

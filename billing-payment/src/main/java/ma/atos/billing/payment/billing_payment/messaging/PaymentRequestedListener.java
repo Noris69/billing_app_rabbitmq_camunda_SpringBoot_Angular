@@ -33,7 +33,8 @@ public class PaymentRequestedListener {
                     event.currency(),
                     toModeReglement(event.modeReglement()),
                     event.description(),
-                    event.paymentSuccess()
+                    event.paymentSuccess(),
+                    null
             ));
         } catch (DataIntegrityViolationException ex) {
             LOGGER.error(

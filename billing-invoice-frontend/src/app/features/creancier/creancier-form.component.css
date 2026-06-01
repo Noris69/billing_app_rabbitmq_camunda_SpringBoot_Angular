@@ -18,6 +18,18 @@
   color: #8c8c8c;
 }
 
+.label-help {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.label-help [nz-icon] {
+  color: #64748b;
+  cursor: help;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .form-actions button,
   .form-actions a {

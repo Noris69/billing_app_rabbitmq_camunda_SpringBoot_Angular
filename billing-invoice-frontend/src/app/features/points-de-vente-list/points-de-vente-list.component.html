@@ -32,7 +32,7 @@
         <nz-form-item>
           <nz-form-label>Nom</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="nom" placeholder="Centre, Nord..." />
+            <input nz-input formControlName="nom" placeholder="Ex: Agence Rabat Centre" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -56,7 +56,7 @@
         <nz-form-item>
           <nz-form-label>Adresse</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="adresse" placeholder="Ville ou quartier" />
+            <input nz-input formControlName="adresse" placeholder="Ex: Rabat ou Maarif" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -65,7 +65,7 @@
         <nz-form-item>
           <nz-form-label>Telephone</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="telephone" placeholder="0522..." />
+            <input nz-input formControlName="telephone" placeholder="Ex: 0522000000" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -136,7 +136,7 @@
                 nzSize="small"
                 type="button"
                 nz-popconfirm
-                nzPopconfirmTitle="Supprimer ce point de vente ?"
+                nzPopconfirmTitle="Cette action supprimera le point de vente. Continuer ?"
                 [nzLoading]="deletingId === pointDeVente.id"
                 (nzOnConfirm)="deletePointDeVente(pointDeVente)"
               >
@@ -150,6 +150,6 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucun point de vente trouve"></nz-empty>
+    <nz-empty *ngIf="!loading" [nzNotFoundContent]="emptyMessage()"></nz-empty>
   </ng-template>
 </nz-card>

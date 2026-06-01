@@ -76,6 +76,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'paiements/:id',
+    loadComponent: () =>
+      import('./features/payment-detail/payment-detail.component').then(
+        (module) => module.PaymentDetailComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

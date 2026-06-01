@@ -73,6 +73,43 @@ http://localhost:8085
 
 Le frontend Angular utilise cette gateway via `proxy.conf.json`.
 
+Regle frontend :
+
+- Angular appelle uniquement la gateway avec des URLs relatives :
+  - `/api/**`
+  - `/customer-api/**`
+  - `/payment-api/**`
+- `proxy.conf.json` pointe ces chemins vers `http://localhost:8085`.
+- Aucun appel frontend ne doit cibler directement `billing-invoice:8080`, `billing-payment:8082` ou `billing-customer:8083`.
+
+### Swagger/OpenAPI et health checks
+
+Les endpoints de supervision publics sont disponibles sans token :
+
+```text
+GET /actuator/health
+GET /v3/api-docs
+GET /swagger-ui.html
+```
+
+Depuis la gateway :
+
+```text
+Gateway Swagger  : http://localhost:8085/swagger-ui.html
+Gateway health   : http://localhost:8085/actuator/health
+Customer OpenAPI : http://localhost:8085/customer-docs/v3/api-docs
+Invoice OpenAPI  : http://localhost:8085/invoice-docs/v3/api-docs
+Payment OpenAPI  : http://localhost:8085/payment-docs/v3/api-docs
+```
+
+Les microservices exposent aussi leurs propres Swagger/health en direct pour diagnostic local :
+
+```text
+http://localhost:8083/swagger-ui.html
+http://localhost:8080/swagger-ui.html
+http://localhost:8082/swagger-ui.html
+```
+
 ### Vault
 
 HashiCorp Vault a ete integre pour sortir les secrets des fichiers de configuration.
@@ -139,6 +176,14 @@ Ameliorations ajoutees :
 - page liste des factures ;
 - page detail facture `/factures/:id` ;
 - endpoint backend `GET /api/invoices/{id}` ;
+- timeline detail facture :
+  - facture creee ;
+  - facture validee ;
+  - paiement demande ;
+  - paiement reussi ou echoue ;
+- export CSV des factures ;
+- export Excel des factures ;
+- numerotation automatique des references facture dans la page de test paiement ;
 - affichage des vrais noms au lieu des IDs seuls :
   - customer ;
   - creancier ;
@@ -244,6 +289,48 @@ ESPECES
 CARTE
 ```
 
+### Flyway et donnees de demo
+
+Les schemas PostgreSQL et les donnees de test sont maintenant geres par Flyway.
+
+Schemas geres :
+
+```text
+customer -> billing-customer
+invoice  -> billing-invoice
+payment  -> billing-payment
+```
+
+Migrations principales :
+
+```text
+billing-customer/src/main/resources/db/migration
+  V1__init_customer_schema.sql
+  V2__seed_demo_customers.sql
+
+billing-invoice/src/main/resources/db/migration
+  V1__init_database.sql
+  V2__rename_costumer_to_customer.sql
+  V3__add_audit_columns.sql
+  V4__seed_demo_invoice_data.sql
+
+billing-payment/src/main/resources/db/migration
+  V1__init_payment_schema.sql
+  V2__add_payment_status.sql
+  V3__seed_demo_transactions.sql
+```
+
+Les seeds sont idempotents : ils utilisent des IDs fixes et `ON CONFLICT`, donc relancer les services ne duplique pas les lignes.
+
+Pour reconstruire une base locale :
+
+1. Creer ou vider la base PostgreSQL.
+2. Demarrer `billing-customer`.
+3. Demarrer `billing-invoice`.
+4. Demarrer `billing-payment`.
+
+Flyway cree ou met a jour les tables, ajoute les colonnes necessaires et insere automatiquement les customers, creanciers, points de vente, factures et transactions de demo.
+
 ## Flux paiement
 
 ```mermaid
@@ -281,50 +368,63 @@ billing-customer : 8083
 RabbitMQ AMQP    : 5672
 RabbitMQ UI      : 15672
 Vault            : 8200
+Keycloak         : 8081
 Angular frontend : 4200
 ```
 
 ## Demarrage rapide
 
-### 1. Lancer l'infrastructure
+### Option A. Tout lancer avec Docker Compose
 
-RabbitMQ :
+Le fichier `docker-compose.yml` lance :
 
-```bash
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+- PostgreSQL `db_formation` ;
+- RabbitMQ + management UI ;
+- Vault dev + injection automatique des secrets ;
+- Keycloak avec le realm `billing` et le client `billing-frontend` ;
+- `billing-customer` ;
+- `billing-invoice` ;
+- `billing-payment` ;
+- `api-gateway`.
+
+```powershell
+docker compose up --build
 ```
 
-Vault :
+URLs utiles :
 
-```bash
-docker compose up -d vault
+```text
+Gateway    : http://localhost:8085
+Keycloak   : http://localhost:8081
+RabbitMQ UI: http://localhost:15672
+Vault      : http://localhost:8200
 ```
+
+Identifiants dev :
+
+```text
+Keycloak admin : admin / admin
+Keycloak app   : admin / admin
+RabbitMQ       : guest / guest
+Vault token    : root
+Postgres       : root / moimoimm1
+```
+
+### Option B. Lancer en local
 
 Vault local :
 
-```text
-http://localhost:8200
-token: root
+```powershell
+docker compose up -d vault
 ```
 
 Charger les secrets :
 
 ```powershell
-$env:DB_URL="jdbc:postgresql://localhost:5432/billing"
-$env:DB_USERNAME="postgres"
-$env:DB_PASSWORD="postgres"
-$env:KEYCLOAK_ISSUER_URI="http://localhost:8081/realms/billing"
-$env:RABBITMQ_HOST="localhost"
-$env:RABBITMQ_PORT="5672"
-$env:RABBITMQ_USERNAME="guest"
-$env:RABBITMQ_PASSWORD="guest"
-
 .\scripts\vault-put-secrets.ps1
 ```
 
-### 2. Demarrer les microservices
-
-Depuis la racine du projet :
+Demarrer les microservices depuis la racine du projet :
 
 ```powershell
 cd billing-customer
@@ -427,7 +527,19 @@ GET /customer-api/customers/search
 ```text
 GET /payment-api/payments/search
 GET /payment-api/payments/{id}
+GET /payment-api/payments/{id}/attempts
+GET /payment-api/payments/dashboard
+POST /payment-api/payments/{id}/retry
 ```
+
+Fonctionnalites payment cote interface :
+
+- Page detail transaction payment depuis `/paiements/{id}`.
+- Lien facture -> transaction dans le detail facture.
+- Lien transaction -> facture dans les listes payment.
+- Retry d'un paiement echoue depuis le detail transaction et la liste des transactions.
+- Historique des tentatives de paiement par facture ou transaction parent.
+- Dashboard paiement : total encaisse, transactions echouees, repartition CARTE / ESPECES.
 
 ## Parametres de pagination et tri
 

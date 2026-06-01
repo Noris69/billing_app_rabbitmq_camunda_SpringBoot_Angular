@@ -31,7 +31,7 @@
         <nz-form-item>
           <nz-form-label>Nom</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="nom" placeholder="Nom du creancier" />
+            <input nz-input formControlName="nom" placeholder="Ex: Maroc Telecom" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -55,7 +55,7 @@
         <nz-form-item>
           <nz-form-label>ICE</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="ice" placeholder="ICE" />
+            <input nz-input formControlName="ice" placeholder="Ex: 001234567000089" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -64,7 +64,7 @@
         <nz-form-item>
           <nz-form-label>Banque</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="banque" placeholder="Banque" />
+            <input nz-input formControlName="banque" placeholder="Ex: Attijariwafa Bank" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -73,7 +73,7 @@
         <nz-form-item>
           <nz-form-label>Telephone</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="telephone" placeholder="0522..." />
+            <input nz-input formControlName="telephone" placeholder="Ex: 0522000000" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -144,7 +144,7 @@
                 nzSize="small"
                 type="button"
                 nz-popconfirm
-                nzPopconfirmTitle="Supprimer ce creancier ?"
+                nzPopconfirmTitle="Cette action supprimera le creancier. Continuer ?"
                 [nzLoading]="deletingId === data.id"
                 (nzOnConfirm)="deleteCreancier(data)"
               >
@@ -158,6 +158,6 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucun creancier trouve"></nz-empty>
+    <nz-empty *ngIf="!loading" [nzNotFoundContent]="emptyMessage()"></nz-empty>
   </ng-template>
 </nz-card>

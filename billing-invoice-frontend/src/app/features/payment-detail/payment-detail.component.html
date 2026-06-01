@@ -1,0 +1,126 @@
+<div class="detail-header">
+  <div>
+    <a routerLink="/test-paiement" class="back-link">Retour aux transactions</a>
+    <h1 class="page-title">Transaction #{{ payment?.id }}</h1>
+    <p class="page-subtitle">{{ payment?.transactionReference || 'Detail transaction payment' }}</p>
+  </div>
+
+  <div class="header-actions" *ngIf="payment">
+    <nz-tag [nzColor]="statusColor(payment.status)">{{ payment.status }}</nz-tag>
+    <button
+      *ngIf="canRetry(payment)"
+      nz-button
+      nzType="primary"
+      type="button"
+      nz-popconfirm
+      nzPopconfirmTitle="Relancer ce paiement ?"
+      [nzLoading]="retrying"
+      (nzOnConfirm)="retryPayment()"
+    >
+      Retry paiement
+    </button>
+  </div>
+</div>
+
+<nz-alert
+  *ngIf="errorMessage"
+  class="section-gap"
+  nzType="error"
+  [nzMessage]="errorMessage"
+  nzShowIcon
+></nz-alert>
+
+<div class="loading-state" *ngIf="loading">
+  <nz-spin nzSimple></nz-spin>
+  <span>Chargement de la transaction...</span>
+</div>
+
+<ng-container *ngIf="payment">
+  <section class="detail-grid">
+    <nz-card nzTitle="Informations paiement">
+      <dl class="info-grid">
+        <div>
+          <dt>Reference transaction</dt>
+          <dd>{{ payment.transactionReference || '-' }}</dd>
+        </div>
+        <div>
+          <dt>Facture</dt>
+          <dd>
+            <a *ngIf="payment.invoiceId; else noInvoice" [routerLink]="['/factures', payment.invoiceId]">
+              {{ payment.invoiceReference || ('#' + payment.invoiceId) }}
+            </a>
+            <ng-template #noInvoice>-</ng-template>
+          </dd>
+        </div>
+        <div>
+          <dt>Mode</dt>
+          <dd>{{ payment.modeReglement || '-' }}</dd>
+        </div>
+        <div>
+          <dt>Tentative</dt>
+          <dd>#{{ payment.attemptNumber || 1 }}</dd>
+        </div>
+        <div>
+          <dt>Date creation</dt>
+          <dd>{{ payment.createdDate ? (payment.createdDate | date:'dd/MM/yyyy HH:mm') : '-' }}</dd>
+        </div>
+        <div>
+          <dt>Raison echec</dt>
+          <dd>{{ payment.failureReason || '-' }}</dd>
+        </div>
+      </dl>
+    </nz-card>
+
+    <nz-card nzTitle="Montant et parties">
+      <dl class="info-grid">
+        <div>
+          <dt>Montant</dt>
+          <dd>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }}</dd>
+        </div>
+        <div>
+          <dt>Customer</dt>
+          <dd>{{ payment.customerId ? ('#' + payment.customerId) : '-' }}</dd>
+        </div>
+        <div>
+          <dt>Creancier</dt>
+          <dd>{{ payment.creancierId ? ('#' + payment.creancierId) : '-' }}</dd>
+        </div>
+        <div>
+          <dt>Point vente</dt>
+          <dd>{{ payment.pointDeVenteId ? ('#' + payment.pointDeVenteId) : '-' }}</dd>
+        </div>
+      </dl>
+    </nz-card>
+  </section>
+
+  <nz-card nzTitle="Historique des tentatives" class="section-gap">
+    <ng-container *ngIf="attempts.length; else noAttempts">
+      <nz-table [nzData]="attempts" [nzFrontPagination]="false" [nzBordered]="true" nzSize="middle">
+        <thead>
+          <tr>
+            <th>Tentative</th>
+            <th>Transaction</th>
+            <th>Montant</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let attempt of attempts">
+            <td>#{{ attempt.attemptNumber || 1 }}</td>
+            <td><a [routerLink]="['/paiements', attempt.id]">{{ attempt.transactionReference || ('PAY-' + attempt.id) }}</a></td>
+            <td>{{ attempt.amount | number:'1.2-2' }} {{ attempt.currency }}</td>
+            <td>{{ attempt.modeReglement || '-' }}</td>
+            <td><nz-tag [nzColor]="statusColor(attempt.status)">{{ attempt.status }}</nz-tag></td>
+            <td>{{ attempt.createdDate ? (attempt.createdDate | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </ng-container>
+
+    <ng-template #noAttempts>
+      <nz-empty nzNotFoundContent="Aucune tentative pour cette transaction"></nz-empty>
+    </ng-template>
+  </nz-card>
+</ng-container>

@@ -9,7 +9,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { Invoice } from 'src/app/core/models/invoice.model';
-import { Payment } from 'src/app/core/models/payment.model';
+import { Payment, PaymentDashboard } from 'src/app/core/models/payment.model';
 import { CreancierService } from 'src/app/core/services/creancier.service';
 import { InvoiceService } from 'src/app/core/services/invoice.service';
 import { PaymentTestService } from 'src/app/core/services/payment-test.service';
@@ -45,6 +45,10 @@ export class DashboardComponent implements OnInit {
   pendingInvoices = 0;
   totalPayments = 0;
   successfulPayments = 0;
+  failedPayments = 0;
+  pendingPayments = 0;
+  cardPayments = 0;
+  cashPayments = 0;
   totalAmount = 0;
   totalCreanciers = 0;
   totalPointsDeVente = 0;
@@ -64,26 +68,37 @@ export class DashboardComponent implements OnInit {
       paidInvoices: this.invoiceService.searchInvoices({ page: 0, size: 1, status: 'PAYEE' }).pipe(catchError(() => of(null))),
       pendingInvoices: this.invoiceService.searchInvoices({ page: 0, size: 1, status: 'EN_ATTENTE' }).pipe(catchError(() => of(null))),
       payments: this.paymentService.searchPayments().pipe(catchError(() => of(null))),
+      paymentDashboard: this.paymentService.getDashboard().pipe(catchError(() => of(null))),
       creanciers: this.creancierService.searchCreanciers({ page: 0, size: 1 }).pipe(catchError(() => of(null))),
       pointsDeVente: this.pointDeVenteService.searchPointDeVentes({ page: 0, size: 1 }).pipe(catchError(() => of(null)))
     }).subscribe({
-      next: ({ invoices, paidInvoices, pendingInvoices, payments, creanciers, pointsDeVente }) => {
+      next: ({ invoices, paidInvoices, pendingInvoices, payments, paymentDashboard, creanciers, pointsDeVente }) => {
         const invoiceItems = invoices?.content ?? [];
         const paymentItems = payments?.content ?? [];
+        const paymentStats = paymentDashboard as PaymentDashboard | null;
 
         this.totalInvoices = invoices?.totalElements ?? invoiceItems.length;
         this.paidInvoices = paidInvoices?.totalElements ?? invoiceItems.filter((invoice) => invoice.status === 'PAYEE').length;
         this.pendingInvoices =
           pendingInvoices?.totalElements ?? invoiceItems.filter((invoice) => invoice.status === 'EN_ATTENTE').length;
-        this.totalPayments = payments?.totalElements ?? paymentItems.length;
-        this.successfulPayments = paymentItems.filter((payment) => payment.status === 'SUCCESS').length;
-        this.totalAmount = paymentItems.reduce((sum, payment) => sum + Number(payment.amount ?? 0), 0);
+        this.totalPayments = paymentStats?.totalTransactions ?? payments?.totalElements ?? paymentItems.length;
+        this.successfulPayments =
+          paymentStats?.successfulTransactions ?? paymentItems.filter((payment) => payment.status === 'SUCCESS').length;
+        this.failedPayments = paymentStats?.failedTransactions ?? paymentItems.filter((payment) => payment.status === 'FAILED').length;
+        this.pendingPayments = paymentStats?.pendingTransactions ?? paymentItems.filter((payment) => payment.status === 'PENDING').length;
+        this.cardPayments = paymentStats?.cardTransactions ?? paymentItems.filter((payment) => payment.modeReglement === 'CARTE').length;
+        this.cashPayments = paymentStats?.cashTransactions ?? paymentItems.filter((payment) => payment.modeReglement === 'ESPECES').length;
+        this.totalAmount =
+          paymentStats?.totalCollected ??
+          paymentItems
+            .filter((payment) => payment.status === 'SUCCESS')
+            .reduce((sum, payment) => sum + Number(payment.amount ?? 0), 0);
         this.totalCreanciers = creanciers?.totalElements ?? 0;
         this.totalPointsDeVente = pointsDeVente?.totalElements ?? 0;
         this.recentInvoices = invoiceItems.slice(0, 5);
         this.recentPayments = paymentItems.slice(0, 5);
 
-        if (!invoices || !payments || !creanciers || !pointsDeVente) {
+        if (!invoices || !payments || !paymentDashboard || !creanciers || !pointsDeVente) {
           this.errorMessage = 'Certaines donnees du dashboard n ont pas pu etre chargees.';
         }
       },
@@ -114,5 +129,37 @@ export class DashboardComponent implements OnInit {
       return 'red';
     }
     return 'gold';
+  }
+
+  get cardPaymentPercent(): number {
+    return this.percent(this.cardPayments, this.cardPayments + this.cashPayments);
+  }
+
+  get cashPaymentPercent(): number {
+    return this.percent(this.cashPayments, this.cardPayments + this.cashPayments);
+  }
+
+  get successfulPaymentPercent(): number {
+    return this.percent(this.successfulPayments, this.paymentStatusChartTotal);
+  }
+
+  get failedPaymentPercent(): number {
+    return this.percent(this.failedPayments, this.paymentStatusChartTotal);
+  }
+
+  get pendingPaymentPercent(): number {
+    return this.percent(this.pendingPayments, this.paymentStatusChartTotal);
+  }
+
+  private get paymentStatusChartTotal(): number {
+    return this.successfulPayments + this.failedPayments + this.pendingPayments;
+  }
+
+  private percent(value: number, total: number): number {
+    if (!total) {
+      return 0;
+    }
+
+    return Math.round((value / total) * 100);
   }
 }

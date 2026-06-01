@@ -20,15 +20,15 @@
 ></nz-alert>
 
 <nz-card nzTitle="Facture de test" class="section-gap">
-  <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="startTest()">
+  <form nz-form nzLayout="vertical" [formGroup]="form">
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="8">
         <nz-form-item>
           <nz-form-label nzRequired>Reference</nz-form-label>
           <nz-form-control>
             <div class="inline-field">
-              <input nz-input formControlName="reference" />
-              <button nz-button type="button" (click)="resetReference()">Generer</button>
+              <input nz-input formControlName="reference" readonly />
+              <button nz-button type="button" (click)="resetReference()">Regenerer</button>
             </div>
           </nz-form-control>
         </nz-form-item>
@@ -120,7 +120,7 @@
               formControlName="customerId"
               nzShowSearch
               nzServerSearch
-              nzPlaceHolder="Selectionner"
+              nzPlaceHolder="Selectionner un customer"
               [nzLoading]="loadingCustomers"
               (nzOnSearch)="searchCustomers($event)"
             >
@@ -142,7 +142,7 @@
               formControlName="creancierId"
               nzShowSearch
               nzServerSearch
-              nzPlaceHolder="Selectionner"
+              nzPlaceHolder="Selectionner un creancier"
               [nzLoading]="loadingCreanciers"
               (nzOnSearch)="searchCreanciers($event)"
             >
@@ -164,7 +164,7 @@
               formControlName="pointDeVenteId"
               nzShowSearch
               nzServerSearch
-              nzPlaceHolder="Selectionner"
+              nzPlaceHolder="Selectionner un point de vente"
               [nzLoading]="loadingPointsDeVente"
               (nzOnSearch)="searchPointsDeVente($event)"
             >
@@ -182,12 +182,20 @@
     <nz-form-item>
       <nz-form-label>Description</nz-form-label>
       <nz-form-control>
-        <textarea nz-input rows="2" formControlName="description"></textarea>
+        <textarea nz-input rows="2" formControlName="description" placeholder="Ex: Facture de test paiement"></textarea>
       </nz-form-control>
     </nz-form-item>
 
     <div class="toolbar">
-      <button nz-button nzType="primary" type="submit" [nzLoading]="loading">
+      <button
+        nz-button
+        nzType="primary"
+        type="button"
+        nz-popconfirm
+        nzPopconfirmTitle="Confirmer la generation de cette facture et le lancement du workflow ?"
+        [nzLoading]="loading"
+        (nzOnConfirm)="startTest()"
+      >
         Lancer le test
       </button>
       <button nz-button type="button" (click)="refreshPayments()" [nzLoading]="refreshing">
@@ -230,7 +238,7 @@
       [nzPageSize]="paymentPageSize"
       [nzShowSizeChanger]="true"
       [nzPageSizeOptions]="[10, 20, 50]"
-      [nzScroll]="{ x: '1120px' }"
+      [nzScroll]="{ x: '1320px' }"
       nzSize="middle"
       (nzPageIndexChange)="onPaymentPageIndexChange($event)"
       (nzPageSizeChange)="onPaymentPageSizeChange($event)"
@@ -238,36 +246,60 @@
       <thead>
         <tr>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'id' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('id', $event)">ID</th>
+          <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'invoiceId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('invoiceId', $event)">Facture</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'customerId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('customerId', $event)">Customer</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'creancierId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('creancierId', $event)">Creancier</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'pointDeVenteId' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('pointDeVenteId', $event)">Point vente</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'amount' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('amount', $event)">Montant</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'modeReglement' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('modeReglement', $event)">Mode</th>
           <th>Reference transaction</th>
+          <th>Tentative</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'status' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('status', $event)">Status</th>
           <th [nzSortFn]="true" [nzSortOrder]="paymentSortBy === 'createdDate' ? paymentSortOrder : null" (nzSortOrderChange)="onPaymentSortChange('createdDate', $event)">Date creation</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let payment of payments">
-          <td>#{{ payment.id }}</td>
+          <td><a [routerLink]="['/paiements', payment.id]">#{{ payment.id }}</a></td>
+          <td>
+            <a *ngIf="payment.invoiceId; else noPaymentInvoice" [routerLink]="['/factures', payment.invoiceId]">
+              {{ payment.invoiceReference || ('#' + payment.invoiceId) }}
+            </a>
+            <ng-template #noPaymentInvoice>-</ng-template>
+          </td>
           <td>{{ customerName(payment.customerId) }}</td>
           <td>{{ creancierName(payment.creancierId) }}</td>
           <td>{{ pointDeVenteName(payment.pointDeVenteId) }}</td>
           <td>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }}</td>
           <td>{{ payment.modeReglement || '-' }}</td>
-          <td><code>{{ payment.transactionReference || '-' }}</code></td>
+          <td><a [routerLink]="['/paiements', payment.id]"><code>{{ payment.transactionReference || '-' }}</code></a></td>
+          <td>#{{ payment.attemptNumber || 1 }}</td>
           <td>
             <nz-tag [nzColor]="statusColor(payment.status)">{{ payment.status }}</nz-tag>
           </td>
           <td>{{ payment.createdDate ? (payment.createdDate | date:'dd/MM/yyyy') : '-' }}</td>
+          <td>
+            <a nz-button nzSize="small" [routerLink]="['/paiements', payment.id]">Voir</a>
+            <button
+              *ngIf="canRetry(payment)"
+              nz-button
+              nzSize="small"
+              type="button"
+              nz-popconfirm
+              nzPopconfirmTitle="Relancer ce paiement ?"
+              (nzOnConfirm)="retryPayment(payment)"
+            >
+              Retry
+            </button>
+          </td>
         </tr>
       </tbody>
     </nz-table>
   </ng-container>
 
   <ng-template #emptyState>
-    <nz-empty *ngIf="!loading && !refreshing" nzNotFoundContent="Aucune transaction trouvee"></nz-empty>
+    <nz-empty *ngIf="!loading && !refreshing" nzNotFoundContent="Aucune transaction payment pour le moment"></nz-empty>
   </ng-template>
 </nz-card>

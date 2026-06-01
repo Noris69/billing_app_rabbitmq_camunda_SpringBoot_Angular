@@ -8,9 +8,12 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import {
   CreateCreancierPayload,
   TYPE_CREANCIER_OPTIONS,
@@ -31,9 +34,12 @@ import { extractApiErrorMessage } from 'src/app/core/utils/api-error.util';
     NzCardModule,
     NzFormModule,
     NzGridModule,
+    NzIconModule,
     NzInputModule,
+    NzPopconfirmModule,
     NzSelectModule,
-    NzSpinModule
+    NzSpinModule,
+    NzToolTipModule
   ],
   templateUrl: './creancier-form.component.html',
   styleUrl: './creancier-form.component.css'
@@ -47,15 +53,15 @@ export class CreancierFormComponent implements OnInit {
   readonly typeOptions = TYPE_CREANCIER_OPTIONS;
 
   readonly creancierForm = this.fb.group({
-    nom: ['', Validators.required],
+    nom: ['', [Validators.required, Validators.maxLength(120)]],
     typeCreancier: ['AUTRE' as TypeCreancier, Validators.required],
-    ice: [''],
-    rc: [''],
-    rib: [''],
-    banque: [''],
+    ice: ['', Validators.pattern(/^\d{15}$/)],
+    rc: ['', Validators.maxLength(30)],
+    rib: ['', Validators.pattern(/^\d{24}$/)],
+    banque: ['', Validators.maxLength(120)],
     email: ['', Validators.email],
-    telephone: [''],
-    adresse: ['']
+    telephone: ['', Validators.pattern(/^(?:\+212|0)[5-7]\d{8}$/)],
+    adresse: ['', Validators.maxLength(255)]
   });
 
   loading = false;
@@ -107,6 +113,20 @@ export class CreancierFormComponent implements OnInit {
           this.errorMessage = extractApiErrorMessage(error, "L'enregistrement du creancier a echoue.");
         }
       });
+  }
+
+  normalizeDigits(controlName: 'ice' | 'rib', maxLength: number): void {
+    const control = this.creancierForm.controls[controlName];
+    control.setValue((control.value ?? '').replace(/\D/g, '').slice(0, maxLength), { emitEvent: false });
+  }
+
+  normalizeTelephone(): void {
+    const control = this.creancierForm.controls.telephone;
+    const rawValue = control.value ?? '';
+    const normalized = rawValue.startsWith('+')
+      ? `+${rawValue.slice(1).replace(/\D/g, '')}`.slice(0, 13)
+      : rawValue.replace(/\D/g, '').slice(0, 10);
+    control.setValue(normalized, { emitEvent: false });
   }
 
   private loadCreancier(id: number): void {

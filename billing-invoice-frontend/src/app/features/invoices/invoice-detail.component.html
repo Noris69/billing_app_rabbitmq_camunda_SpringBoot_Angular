@@ -5,7 +5,21 @@
     <p class="page-subtitle">{{ invoice?.reference || 'Detail facture' }}</p>
   </div>
 
-  <nz-tag *ngIf="invoice" [nzColor]="statusColor(invoice.status)">{{ invoice.status }}</nz-tag>
+  <div class="header-actions" *ngIf="invoice">
+    <nz-tag [nzColor]="statusColor(invoice.status)">{{ invoice.status }}</nz-tag>
+    <button
+      *ngIf="canRequestPayment()"
+      nz-button
+      nzType="primary"
+      type="button"
+      nz-popconfirm
+      nzPopconfirmTitle="Creer une transaction payment en attente pour cette facture ?"
+      [nzLoading]="requestingPayment"
+      (nzOnConfirm)="requestPendingPayment()"
+    >
+      Demander paiement
+    </button>
+  </div>
 </div>
 
 <nz-alert
@@ -99,19 +113,49 @@
 
     <nz-card nzTitle="Suivi">
       <ol class="timeline">
-        <li class="done">
-          <strong>Facture creee</strong>
-          <span>{{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }}</span>
-        </li>
-        <li class="done">
-          <strong>Paiement demande</strong>
-          <span>{{ invoice.modeReglement || '-' }}</span>
-        </li>
-        <li [class.done]="isPaid(invoice.status)" [class.pending]="!isPaid(invoice.status)">
-          <strong>{{ isPaid(invoice.status) ? 'Paiement confirme' : 'Paiement en attente' }}</strong>
-          <span>{{ invoice.status }}</span>
+        <li
+          *ngFor="let item of timelineItems"
+          [class.done]="item.state === 'done'"
+          [class.pending]="item.state === 'pending'"
+          [class.failed]="item.state === 'failed'"
+        >
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.value }}</span>
         </li>
       </ol>
     </nz-card>
   </section>
+
+  <nz-card nzTitle="Transactions payment liees" class="section-gap">
+    <ng-container *ngIf="payments.length; else noLinkedPayments">
+      <nz-table [nzData]="payments" [nzFrontPagination]="false" [nzBordered]="true" nzSize="middle">
+        <thead>
+          <tr>
+            <th>Transaction</th>
+            <th>Tentative</th>
+            <th>Montant</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payment of payments">
+            <td>
+              <a [routerLink]="['/paiements', payment.id]">{{ payment.transactionReference || ('PAY-' + payment.id) }}</a>
+            </td>
+            <td>#{{ payment.attemptNumber || 1 }}</td>
+            <td>{{ payment.amount | number:'1.2-2' }} {{ payment.currency }}</td>
+            <td>{{ payment.modeReglement || '-' }}</td>
+            <td><nz-tag [nzColor]="paymentStatusColor(payment.status)">{{ payment.status }}</nz-tag></td>
+            <td>{{ payment.createdDate ? (payment.createdDate | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </ng-container>
+
+    <ng-template #noLinkedPayments>
+      <nz-empty nzNotFoundContent="Aucune transaction payment liee a cette facture"></nz-empty>
+    </ng-template>
+  </nz-card>
 </ng-container>

@@ -10,6 +10,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import {
@@ -34,6 +35,7 @@ import { extractApiErrorMessage } from '../../core/utils/api-error.util';
     NzGridModule,
     NzInputModule,
     NzInputNumberModule,
+    NzPopconfirmModule,
     NzRadioModule,
     NzSpinModule
   ],
@@ -50,9 +52,9 @@ export class PointDeVenteFormComponent implements OnInit {
 
   readonly pointDeVenteForm = this.fb.group({
     type: ['AGENCE' as PointDeVenteType, Validators.required],
-    nom: ['', Validators.required],
-    adresse: ['', Validators.required],
-    telephone: ['', Validators.required],
+    nom: ['', [Validators.required, Validators.maxLength(120)]],
+    adresse: ['', [Validators.required, Validators.maxLength(255)]],
+    telephone: ['', [Validators.required, Validators.pattern(/^(?:\+212|0)[5-7]\d{8}$/)]],
     codeAgence: [''],
     responsable: [''],
     region: [''],
@@ -125,6 +127,15 @@ export class PointDeVenteFormComponent implements OnInit {
           );
         }
       });
+  }
+
+  normalizeTelephone(): void {
+    const control = this.pointDeVenteForm.controls.telephone;
+    const rawValue = control.value ?? '';
+    const normalized = rawValue.startsWith('+')
+      ? `+${rawValue.slice(1).replace(/\D/g, '')}`.slice(0, 13)
+      : rawValue.replace(/\D/g, '').slice(0, 10);
+    control.setValue(normalized, { emitEvent: false });
   }
 
   private loadPointDeVente(id: number): void {

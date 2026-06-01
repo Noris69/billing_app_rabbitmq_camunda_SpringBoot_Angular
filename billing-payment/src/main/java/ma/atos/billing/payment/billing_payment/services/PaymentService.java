@@ -1,5 +1,6 @@
 package ma.atos.billing.payment.billing_payment.services;
 
+import ma.atos.billing.payment.billing_payment.dtos.PaymentDashboardDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentRequestDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentSearchCriteria;
@@ -12,6 +13,12 @@ public interface PaymentService {
     PaymentDto createPayment(PaymentRequestDto request);
 
     PaymentDto getById(Long id);
+
+    PaymentDto retryPayment(Long id);
+
+    List<PaymentDto> findAttempts(Long id);
+
+    PaymentDashboardDto dashboard();
 
     List<PaymentDto> findByCustomerId(Long customerId);
 

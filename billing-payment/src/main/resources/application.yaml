@@ -59,3 +59,19 @@ billing:
     payment-completed-queue: invoice.payment.completed.queue
     payment-requested-routing-key: payment.requested
     payment-completed-routing-key: payment.completed
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

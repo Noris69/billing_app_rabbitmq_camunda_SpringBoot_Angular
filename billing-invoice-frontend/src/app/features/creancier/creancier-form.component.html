@@ -17,13 +17,13 @@
     <span>Chargement du creancier...</span>
   </div>
 
-  <form *ngIf="!loading" nz-form nzLayout="vertical" [formGroup]="creancierForm" (ngSubmit)="submit()">
+  <form *ngIf="!loading" nz-form nzLayout="vertical" [formGroup]="creancierForm">
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="12">
         <nz-form-item>
           <nz-form-label nzRequired>Nom</nz-form-label>
           <nz-form-control nzErrorTip="Le nom est obligatoire">
-            <input nz-input formControlName="nom" placeholder="Nom du creancier" />
+            <input nz-input formControlName="nom" placeholder="Ex: Maroc Telecom" maxlength="120" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -47,9 +47,20 @@
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="8">
         <nz-form-item>
-          <nz-form-label>ICE</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="ice" placeholder="ICE" />
+          <nz-form-label>
+            <span class="label-help">
+              ICE
+              <span
+                nz-icon
+                nzType="question-circle"
+                nzTheme="outline"
+                nz-tooltip
+                nzTooltipTitle="L'ICE doit avoir 15 chiffres"
+              ></span>
+            </span>
+          </nz-form-label>
+          <nz-form-control nzErrorTip="L'ICE doit contenir 15 chiffres">
+            <input nz-input formControlName="ice" placeholder="Ex: 001234567000089" maxlength="15" (input)="normalizeDigits('ice', 15)" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -57,8 +68,8 @@
       <nz-col [nzXs]="24" [nzMd]="8">
         <nz-form-item>
           <nz-form-label>RC</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="rc" placeholder="RC" />
+          <nz-form-control nzErrorTip="Le RC ne doit pas depasser 30 caracteres">
+            <input nz-input formControlName="rc" placeholder="Ex: RC123456" maxlength="30" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -67,7 +78,7 @@
         <nz-form-item>
           <nz-form-label>Banque</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="banque" placeholder="Banque" />
+            <input nz-input formControlName="banque" placeholder="Ex: Attijariwafa Bank" maxlength="120" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -76,9 +87,20 @@
     <nz-row [nzGutter]="16">
       <nz-col [nzXs]="24" [nzMd]="12">
         <nz-form-item>
-          <nz-form-label>RIB</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="rib" placeholder="RIB" />
+          <nz-form-label>
+            <span class="label-help">
+              RIB
+              <span
+                nz-icon
+                nzType="question-circle"
+                nzTheme="outline"
+                nz-tooltip
+                nzTooltipTitle="Le RIB doit avoir 24 chiffres"
+              ></span>
+            </span>
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Le RIB doit contenir 24 chiffres">
+            <input nz-input formControlName="rib" placeholder="Ex: 007780000000000000000000" maxlength="24" (input)="normalizeDigits('rib', 24)" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -87,7 +109,7 @@
         <nz-form-item>
           <nz-form-label>Email</nz-form-label>
           <nz-form-control nzErrorTip="Email invalide">
-            <input nz-input formControlName="email" placeholder="contact@example.com" />
+            <input nz-input formControlName="email" placeholder="Ex: facturation@creancier.ma" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -97,8 +119,8 @@
       <nz-col [nzXs]="24" [nzMd]="8">
         <nz-form-item>
           <nz-form-label>Telephone</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="telephone" placeholder="0522000000" />
+          <nz-form-control nzErrorTip="Format attendu : 0522000000 ou +212522000000">
+            <input nz-input formControlName="telephone" placeholder="Ex: 0522000000" maxlength="13" (input)="normalizeTelephone()" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -107,14 +129,22 @@
         <nz-form-item>
           <nz-form-label>Adresse</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="adresse" placeholder="Adresse" />
+            <input nz-input formControlName="adresse" placeholder="Ex: Avenue Mohammed V, Rabat" maxlength="255" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
     </nz-row>
 
     <div class="form-actions">
-      <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+      <button
+        nz-button
+        nzType="primary"
+        type="button"
+        nz-popconfirm
+        [nzPopconfirmTitle]="isEditMode ? 'Confirmer la modification de ce creancier ?' : 'Confirmer la creation de ce creancier ?'"
+        [nzLoading]="submitting"
+        (nzOnConfirm)="submit()"
+      >
         {{ isEditMode ? 'Enregistrer' : 'Creer' }}
       </button>
       <a nz-button routerLink="/creanciers">Annuler</a>

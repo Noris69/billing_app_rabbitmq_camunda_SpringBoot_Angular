@@ -175,6 +175,23 @@ export class PointsDeVenteListComponent implements OnInit {
       });
   }
 
+  emptyMessage(): string {
+    const filters = this.searchForm.getRawValue();
+    if (filters.nom?.trim()) {
+      return 'Aucun point de vente trouve pour ce nom';
+    }
+    if (filters.type_point_de_vente) {
+      return `Aucun point de vente trouve pour le type ${filters.type_point_de_vente}`;
+    }
+    if (filters.adresse?.trim()) {
+      return 'Aucun point de vente trouve pour cette adresse';
+    }
+    if (filters.telephone?.trim()) {
+      return 'Aucun point de vente trouve pour ce telephone';
+    }
+    return 'Aucun point de vente trouve';
+  }
+
   exportPdf(): void {
     this.exportingPdf = true;
     this.errorMessage = '';

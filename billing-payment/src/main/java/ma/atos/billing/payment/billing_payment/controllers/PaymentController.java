@@ -1,6 +1,7 @@
 package ma.atos.billing.payment.billing_payment.controllers;
 
 import jakarta.validation.Valid;
+import ma.atos.billing.payment.billing_payment.dtos.PaymentDashboardDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentRequestDto;
 import ma.atos.billing.payment.billing_payment.dtos.PaymentSearchCriteria;
@@ -36,6 +37,21 @@ public class PaymentController {
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
+    }
+
+    @PostMapping("/{id}/retry")
+    public ResponseEntity<PaymentDto> retry(@PathVariable Long id) {
+        return ResponseEntity.ok(service.retryPayment(id));
+    }
+
+    @GetMapping("/{id}/attempts")
+    public ResponseEntity<List<PaymentDto>> getAttempts(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findAttempts(id));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<PaymentDashboardDto> dashboard() {
+        return ResponseEntity.ok(service.dashboard());
     }
 
     @GetMapping("/by-customer/{customerId}")

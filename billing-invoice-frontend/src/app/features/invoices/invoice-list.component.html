@@ -18,7 +18,7 @@
         <nz-form-item>
           <nz-form-label>Reference</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="reference" placeholder="INV-RMQ..." />
+            <input nz-input formControlName="reference" placeholder="Ex: INV-20260529-101530" />
           </nz-form-control>
         </nz-form-item>
       </nz-col>
@@ -39,6 +39,8 @@
       <button nz-button nzType="primary" type="submit" [nzLoading]="loading">Rechercher</button>
       <button nz-button type="button" (click)="resetFilters()">Reinitialiser</button>
       <button nz-button type="button" (click)="search()">Rafraichir</button>
+      <button nz-button type="button" (click)="exportCsv()" [nzLoading]="exporting">Export CSV</button>
+      <button nz-button type="button" (click)="exportExcel()" [nzLoading]="exporting">Export Excel</button>
     </div>
   </form>
 </nz-card>
@@ -114,6 +116,6 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <nz-empty *ngIf="!loading" nzNotFoundContent="Aucune facture trouvee"></nz-empty>
+    <nz-empty *ngIf="!loading" [nzNotFoundContent]="emptyMessage()"></nz-empty>
   </ng-template>
 </nz-card>

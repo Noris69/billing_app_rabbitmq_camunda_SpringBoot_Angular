@@ -65,6 +65,27 @@ spring:
           predicates:
             - Path=/api/**
 
+        - id: billing-customer-docs
+          uri: ${BILLING_CUSTOMER_URI:http://localhost:8083}
+          predicates:
+            - Path=/customer-docs/**
+          filters:
+            - RewritePath=/customer-docs/(?<segment>.*), /$\{segment}
+
+        - id: billing-invoice-docs
+          uri: ${BILLING_INVOICE_URI:http://localhost:8080}
+          predicates:
+            - Path=/invoice-docs/**
+          filters:
+            - RewritePath=/invoice-docs/(?<segment>.*), /$\{segment}
+
+        - id: billing-payment-docs
+          uri: ${BILLING_PAYMENT_URI:http://localhost:8082}
+          predicates:
+            - Path=/payment-docs/**
+          filters:
+            - RewritePath=/payment-docs/(?<segment>.*), /$\{segment}
+
   security:
     oauth2:
       resourceserver:
@@ -76,3 +97,22 @@ management:
     web:
       exposure:
         include: health,info,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: API Gateway
+        url: /v3/api-docs
+      - name: Customer service
+        url: /customer-docs/v3/api-docs
+      - name: Invoice service
+        url: /invoice-docs/v3/api-docs
+      - name: Payment service
+        url: /payment-docs/v3/api-docs

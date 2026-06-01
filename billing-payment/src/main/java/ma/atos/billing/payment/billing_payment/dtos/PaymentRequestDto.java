@@ -3,6 +3,7 @@ package ma.atos.billing.payment.billing_payment.dtos;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import ma.atos.billing.payment.billing_payment.enums.ModeReglement;
+import ma.atos.billing.payment.billing_payment.enums.PaymentStatus;
 
 public record PaymentRequestDto(
         @NotNull Long invoiceId,
@@ -14,6 +15,7 @@ public record PaymentRequestDto(
         String currency,
         ModeReglement modeReglement,
         String description,
-        Boolean paymentSuccess
+        Boolean paymentSuccess,
+        PaymentStatus status
 ) {
 }
