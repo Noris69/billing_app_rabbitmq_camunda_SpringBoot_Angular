@@ -607,13 +607,13 @@ cd ..\api-gateway
 Le frontend se trouve dans :
 
 ```text
-C:\Users\a953702\projet_formation\front_bank\billing-invoice-frontend
+billing-invoice-frontend
 ```
 
 Commandes :
 
 ```powershell
-cd C:\Users\a953702\projet_formation\front_bank\billing-invoice-frontend
+billing-invoice-frontend
 npm install
 npm start
 ```
