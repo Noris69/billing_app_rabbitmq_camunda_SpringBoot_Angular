@@ -63,7 +63,7 @@ spring:
         - id: billing-invoice-api
           uri: ${BILLING_INVOICE_URI:http://localhost:8080}
           predicates:
-            - Path=/api/**
+            - Path=/api/invoices/**,/api/creanciers/**,/api/points-de-vente/**,/api/point-de-vente/**,/api/workflows/**
 
         - id: billing-customer-docs
           uri: ${BILLING_CUSTOMER_URI:http://localhost:8083}

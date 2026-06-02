@@ -37,7 +37,6 @@ public class PaymentRequestedListener {
         }
 
         try {
-            markAsProcessed(event.eventId(), event.eventType());
             paymentService.createPayment(new PaymentRequestDto(
                     event.invoiceId(),
                     event.invoiceReference(),
@@ -51,6 +50,7 @@ public class PaymentRequestedListener {
                     null,
                     null
             ));
+            markAsProcessed(event.eventId(), event.eventType());
         } catch (DataIntegrityViolationException ex) {
             LOGGER.error(
                     "Erreur contrainte DB lors du traitement du paiement. invoiceId={}, reference={}, customerId={}, creancierId={}, pointDeVenteId={}",
