@@ -12,7 +12,7 @@ spring:
       enabled: false
     vault:
       uri: ${VAULT_URI:http://localhost:8200}
-      token: ${VAULT_TOKEN}
+      token: ${VAULT_TOKEN:root}
       kv:
         enabled: true
         backend: secret
@@ -93,10 +93,16 @@ spring:
           issuer-uri: ${KEYCLOAK_ISSUER_URI}
 
 management:
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,gateway,prometheus
   endpoint:
     health:
       probes:

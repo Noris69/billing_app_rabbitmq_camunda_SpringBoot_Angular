@@ -65,6 +65,7 @@ services:
           DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
           DB_USERNAME='${POSTGRES_USER:?POSTGRES_USER is required}' \
           DB_PASSWORD='${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}' \
+          ZIPKIN_ENDPOINT='http://zipkin:9411/api/v2/spans' \
           KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/billing-invoice \
           DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
@@ -74,6 +75,7 @@ services:
           RABBITMQ_PORT='5672' \
           RABBITMQ_USERNAME='${RABBITMQ_DEFAULT_USER:?RABBITMQ_DEFAULT_USER is required}' \
           RABBITMQ_PASSWORD='${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS is required}' \
+          ZIPKIN_ENDPOINT='http://zipkin:9411/api/v2/spans' \
           KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/billing-payment \
           DB_URL='jdbc:postgresql://postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}' \
@@ -83,12 +85,20 @@ services:
           RABBITMQ_PORT='5672' \
           RABBITMQ_USERNAME='${RABBITMQ_DEFAULT_USER:?RABBITMQ_DEFAULT_USER is required}' \
           RABBITMQ_PASSWORD='${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS is required}' \
+          ZIPKIN_ENDPOINT='http://zipkin:9411/api/v2/spans' \
           KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
         vault kv put secret/api-gateway \
           BILLING_CUSTOMER_URI='http://billing-customer:8083' \
           BILLING_INVOICE_URI='http://billing-invoice:8080' \
           BILLING_PAYMENT_URI='http://billing-payment:8082' \
+          ZIPKIN_ENDPOINT='http://zipkin:9411/api/v2/spans' \
           KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
+
+  zipkin:
+    image: openzipkin/zipkin:3.4
+    container_name: billing-zipkin
+    ports:
+      - "9411:9411"
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -127,6 +137,8 @@ services:
         condition: service_healthy
       vault-init:
         condition: service_completed_successfully
+      zipkin:
+        condition: service_started
     environment:
       VAULT_URI: http://vault:8200
       VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
@@ -147,6 +159,8 @@ services:
         condition: service_healthy
       vault-init:
         condition: service_completed_successfully
+      zipkin:
+        condition: service_started
     environment:
       VAULT_URI: http://vault:8200
       VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
@@ -167,6 +181,8 @@ services:
         condition: service_healthy
       vault-init:
         condition: service_completed_successfully
+      zipkin:
+        condition: service_started
     environment:
       VAULT_URI: http://vault:8200
       VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}
@@ -189,6 +205,8 @@ services:
         condition: service_healthy
       vault-init:
         condition: service_completed_successfully
+      zipkin:
+        condition: service_started
     environment:
       VAULT_URI: http://vault:8200
       VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:?VAULT_DEV_ROOT_TOKEN_ID is required}

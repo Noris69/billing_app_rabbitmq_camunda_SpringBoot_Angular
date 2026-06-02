@@ -144,4 +144,34 @@ public class InvoiceServiceImp implements InvoiceService {
             default -> "id";
         };
     }
+
+    @Override
+    @Transactional
+    public void markProcessing(Long id) {
+        Invoice invoice = repository.findById(id)
+                .orElseThrow(() -> new FunctionalException("Facture introuvable : " + id, HttpStatus.NOT_FOUND));
+        invoice.setStatus(StatusInvoice.PROCESSING);
+        Invoice savedInvoice = repository.save(invoice);
+        notificationService.notifyInvoiceChange(mapper.toDto(savedInvoice));
+    }
+
+    @Override
+    @Transactional
+    public void markPaid(Long id) {
+        Invoice invoice = repository.findById(id)
+                .orElseThrow(() -> new FunctionalException("Facture introuvable : " + id, HttpStatus.NOT_FOUND));
+        invoice.setStatus(StatusInvoice.PAYEE);
+        Invoice savedInvoice = repository.save(invoice);
+        notificationService.notifyInvoiceChange(mapper.toDto(savedInvoice));
+    }
+
+    @Override
+    @Transactional
+    public void markRejected(Long id) {
+        Invoice invoice = repository.findById(id)
+                .orElseThrow(() -> new FunctionalException("Facture introuvable : " + id, HttpStatus.NOT_FOUND));
+        invoice.setStatus(StatusInvoice.REJECTED);
+        Invoice savedInvoice = repository.save(invoice);
+        notificationService.notifyInvoiceChange(mapper.toDto(savedInvoice));
+    }
 }

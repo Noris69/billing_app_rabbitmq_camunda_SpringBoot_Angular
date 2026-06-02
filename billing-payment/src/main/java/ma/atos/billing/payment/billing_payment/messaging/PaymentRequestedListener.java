@@ -53,7 +53,7 @@ public class PaymentRequestedListener {
             ));
         } catch (DataIntegrityViolationException ex) {
             LOGGER.error(
-                    "Message paiement ignore car il ne respecte pas les contraintes DB. invoiceId={}, reference={}, customerId={}, creancierId={}, pointDeVenteId={}",
+                    "Erreur contrainte DB lors du traitement du paiement. invoiceId={}, reference={}, customerId={}, creancierId={}, pointDeVenteId={}",
                     event.invoiceId(),
                     event.invoiceReference(),
                     event.customerId(),
@@ -61,6 +61,7 @@ public class PaymentRequestedListener {
                     event.pointDeVenteId(),
                     ex
             );
+            throw ex;
         } catch (RuntimeException ex) {
             LOGGER.error(
                     "Erreur lors du traitement du paiement RabbitMQ. invoiceId={}, reference={}, amount={}, modeReglement={}",

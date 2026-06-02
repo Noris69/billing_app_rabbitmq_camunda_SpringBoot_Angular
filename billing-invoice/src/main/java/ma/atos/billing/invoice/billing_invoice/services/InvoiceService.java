@@ -26,4 +26,10 @@ public interface InvoiceService {
             String sortBy,
             String sortDir
     );
+
+    void markProcessing(Long id);
+
+    void markPaid(Long id);
+
+    void markRejected(Long id);
 }

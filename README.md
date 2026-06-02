@@ -161,6 +161,69 @@ payment.requested.dlq
 invoice.payment.completed.dlq
 ```
 
+### Transactional Outbox
+
+Les evenements metier ne sont plus envoyes directement a RabbitMQ depuis la transaction principale.
+
+Principe :
+
+```text
+transaction metier
+  -> sauvegarde facture/paiement
+  -> insertion outbox_event
+  -> commit DB
+  -> relay planifie publie vers RabbitMQ
+  -> published_at renseigne
+```
+
+Tables ajoutees par Flyway :
+
+```text
+invoice.outbox_event
+payment.outbox_event
+```
+
+Objectifs :
+
+- eviter de perdre un evenement si RabbitMQ est indisponible pendant une creation/metier ;
+- rejouer automatiquement les evenements non publies ;
+- garder une trace `trace_id` / `span_id` de l'appel qui a cree l'evenement ;
+- publier `PaymentRequestedEvent` et `PaymentCompletedEvent` de maniere plus fiable.
+
+Le relay outbox tourne toutes les `2s` par defaut :
+
+```text
+billing.outbox.relay-delay-ms=2000
+```
+
+### Tracabilite distribuee Micrometer Tracing + Zipkin
+
+Les microservices et la gateway utilisent Micrometer Tracing avec Brave et exportent les traces vers Zipkin.
+
+Docker Compose ajoute :
+
+```text
+Zipkin UI : http://localhost:9411
+```
+
+Variable configuree via Vault ou environnement :
+
+```text
+ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+```
+
+En local hors Docker, le fallback est :
+
+```text
+http://localhost:9411/api/v2/spans
+```
+
+Les traces permettent de suivre un parcours complet :
+
+```text
+frontend -> api-gateway -> billing-invoice -> outbox -> RabbitMQ -> billing-payment -> outbox -> RabbitMQ -> billing-invoice
+```
+
 ### Vault
 
 HashiCorp Vault a ete integre pour sortir les secrets des fichiers de configuration.
@@ -179,6 +242,7 @@ DB_URL
 DB_USERNAME
 DB_PASSWORD
 KEYCLOAK_ISSUER_URI
+ZIPKIN_ENDPOINT
 RABBITMQ_HOST
 RABBITMQ_PORT
 RABBITMQ_USERNAME
@@ -434,10 +498,12 @@ sequenceDiagram
     Gateway->>Invoice: Forward request
     Invoice->>Customer: Reference customer by id
     Invoice->>Invoice: Create invoice EN_ATTENTE
-    Invoice->>Rabbit: Publish PaymentRequestedEvent
+    Invoice->>Invoice: Insert PaymentRequestedEvent in outbox
+    Invoice->>Rabbit: Outbox relay publishes PaymentRequestedEvent
     Payment->>Rabbit: Consume PaymentRequestedEvent
     Payment->>Payment: Create payment transaction
-    Payment->>Rabbit: Publish PaymentCompletedEvent
+    Payment->>Payment: Insert PaymentCompletedEvent in outbox
+    Payment->>Rabbit: Outbox relay publishes PaymentCompletedEvent
     Invoice->>Rabbit: Consume PaymentCompletedEvent
     Invoice->>Invoice: Update invoice status
     Front->>Gateway: Poll /payment-api/payments/search
@@ -456,6 +522,7 @@ RabbitMQ AMQP    : 5672
 RabbitMQ UI      : 15672
 Vault            : 8200
 Keycloak         : 8081
+Zipkin UI        : 9411
 Angular frontend : 4200
 ```
 
@@ -468,6 +535,7 @@ Le fichier `docker-compose.yml` lance :
 - PostgreSQL `db_formation` ;
 - RabbitMQ + management UI ;
 - Vault dev + injection automatique des secrets ;
+- Zipkin pour la tracabilite distribuee ;
 - Keycloak avec le realm `billing` et le client `billing-frontend` ;
 - `billing-customer` ;
 - `billing-invoice` ;
@@ -485,6 +553,7 @@ Gateway    : http://localhost:8085
 Keycloak   : http://localhost:8081
 RabbitMQ UI: http://localhost:15672
 Vault      : http://localhost:8200
+Zipkin     : http://localhost:9411
 ```
 
 Identifiants dev :

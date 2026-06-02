@@ -183,7 +183,10 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private ModeReglement resolveModeReglement(ModeReglement modeReglement) {
-        return modeReglement != null ? modeReglement : ModeReglement.CARTE;
+        if (modeReglement == null) {
+            throw new IllegalArgumentException("Le mode de règlement est obligatoire.");
+        }
+        return modeReglement;
     }
 
     private PaymentCompletedEvent toCompletedEvent(PaymentDto payment, Long invoiceId, String invoiceReference, PaymentStatus status) {
