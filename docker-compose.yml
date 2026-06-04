@@ -95,7 +95,7 @@ services:
           KEYCLOAK_ISSUER_URI='${KEYCLOAK_ISSUER_URI:?KEYCLOAK_ISSUER_URI is required}'
 
   zipkin:
-    image: openzipkin/zipkin:3.4
+    image: ghcr.io/openzipkin/zipkin:3.4
     container_name: billing-zipkin
     ports:
       - "9411:9411"

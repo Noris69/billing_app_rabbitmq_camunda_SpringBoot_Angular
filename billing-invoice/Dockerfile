@@ -4,7 +4,7 @@ COPY .mvn .mvn
 COPY mvnw pom.xml ./
 COPY src src
 COPY META-INF META-INF
-RUN chmod +x mvnw && ./mvnw -q -DskipTests package
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw -q -DskipTests package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
